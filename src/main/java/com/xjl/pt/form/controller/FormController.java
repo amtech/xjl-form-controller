@@ -35,11 +35,11 @@ public class FormController {
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
 	public void add(@RequestBody Form form){
-		this.formService.insert(form);
+		this.formService.add(form);
 	}
 	@ResponseBody
 	@RequestMapping(value="/all/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
 	public List<Form> all(HttpServletRequest request,@PathVariable Integer page,@PathVariable Integer rows){
-		return this.formService.find(page, rows);
+		return this.formService.query(page, rows);
 	}
 }
