@@ -18,6 +18,7 @@ import com.github.pagehelper.Page;
 import com.xjl.pt.core.domain.Dict;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.core.service.DictService;
+import com.xjl.pt.core.service.DictValueService;
 import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.form.domain.Form;
 /**
@@ -31,14 +32,17 @@ public class DictController {
 	@Autowired
 	private DictService dictService;
 	@Autowired
+	private DictValueService dictValueService;
+	@Autowired
 	private UserService userService;
 	@ResponseBody
-	@RequestMapping(value="/all",method=RequestMethod.GET,consumes = "application/json")
-	public BootstrapGridTable all(HttpServletRequest request){
-		int rows = BootstrapGridTable.getRows(request);
-		int page = BootstrapGridTable.getPage(request, rows);
+	@RequestMapping(value="/all/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
+	public BootstrapGridTable all(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
 		String search = StringUtils.trimToNull(request.getParameter("search"));
 		List<Dict> list = this.dictService.queryByName(search, page, rows);
+		for (Dict dict : list) {
+			dict.setDictValueCount(this.dictValueService.countByDictId(dict.getDictId()));
+		}
 		return BootstrapGridTable.getInstance(list);
 	}
 	@ResponseBody
