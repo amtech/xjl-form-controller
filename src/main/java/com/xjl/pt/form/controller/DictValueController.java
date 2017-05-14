@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,9 +30,16 @@ public class DictValueController {
 	@Autowired
 	private UserService userService;
 	@ResponseBody
-	@RequestMapping(value="/all/{dictId}/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
-	public BootstrapGridTable all(HttpServletRequest request, @PathVariable String dictId, @PathVariable Integer page,@PathVariable Integer rows){
-		List<DictValue> list = this.dictValueService.queryByDictId(dictId,page,rows);
+	@RequestMapping(value="/query/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
+	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
+		String dictId = request.getParameter("dictId");
+		String search = request.getParameter("search");
+		List<DictValue> list = null;
+		if (StringUtils.isEmpty(search)){
+			list = this.dictValueService.queryByDictId(dictId,page,rows);
+		} else {
+			list = this.dictValueService.queryByDictId(dictId, search, page, rows);
+		}
 		return BootstrapGridTable.getInstance(list);
 	}
 	@ResponseBody

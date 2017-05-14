@@ -36,8 +36,8 @@ public class DictController {
 	@Autowired
 	private UserService userService;
 	@ResponseBody
-	@RequestMapping(value="/all/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
-	public BootstrapGridTable all(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
+	@RequestMapping(value="/query/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
+	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
 		String search = StringUtils.trimToNull(request.getParameter("search"));
 		List<Dict> list = this.dictService.queryByName(search, page, rows);
 		for (Dict dict : list) {
