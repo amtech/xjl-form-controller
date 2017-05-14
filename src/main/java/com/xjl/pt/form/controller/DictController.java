@@ -47,25 +47,27 @@ public class DictController {
 	}
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
-	public void add(@RequestBody Dict dict){
+	public XJLResponse add(@RequestBody Dict dict){
 		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		this.dictService.add(dict, user);
+		return XJLResponse.successInstance();
 		
 	}
 	@ResponseBody
 	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
-	public void modify(@RequestBody Dict dict){
+	public XJLResponse modify(@RequestBody Dict dict){
 		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		this.dictService.modify(dict, user);
+		return XJLResponse.successInstance();
 	}
 	@ResponseBody
 	@RequestMapping(value="/delete",method=RequestMethod.POST,consumes = "application/json")
-	public void delete(@RequestBody List<Dict> list){
+	public XJLResponse delete(@RequestBody List<Dict> list){
 		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		for (Dict dict : list) {
 			System.out.println(dict.getDictId() + ":" + dict.getDictName());
 			this.dictService.delete(dict, user);
 		}
-		
+		return XJLResponse.successInstance();
 	}
 }
