@@ -64,5 +64,15 @@
 			<artifactId>xjl-form-core</artifactId>
 			<version>0.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.xjl</groupId>
+			<artifactId>xjl-sms-aliyun</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		<dependency>
+				   <groupId>com.xjl</groupId>
+				  <artifactId>xjl-pt-security</artifactId>
+				  <version>0.0.1</version>
+		</dependency>
 	</dependencies>
 </project>
