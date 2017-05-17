@@ -57,4 +57,11 @@ public class TableController {
 		return XJLResponse.successInstance();
 		
 	}
+	@ResponseBody
+	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse modify(@RequestBody Table table){
+		User user = this.userService.queryFixUser();
+		this.tableService.modify(table, user);
+		return XJLResponse.successInstance();
+	}
 }
