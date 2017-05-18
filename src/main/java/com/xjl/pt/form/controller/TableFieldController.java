@@ -53,4 +53,21 @@ public class TableFieldController {
 		this.tableFieldService.add(tableField, user);
 		return XJLResponse.successInstance();
 	}
+	@ResponseBody
+	@RequestMapping(value="/delete",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse delete(@RequestBody List<TableField> list){
+		User user = this.userService.queryFixUser();
+		for (TableField tableField : list) {
+			this.tableFieldService.delete(tableField, user);
+		}
+		return XJLResponse.successInstance();
+		
+	}
+	@ResponseBody
+	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse modify(@RequestBody TableField tableField){
+		User user = this.userService.queryFixUser();
+		this.tableService.modify(tableField, user);
+		return XJLResponse.successInstance();
+	}
 }

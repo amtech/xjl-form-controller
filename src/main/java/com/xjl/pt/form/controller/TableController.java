@@ -47,4 +47,21 @@ public class TableController {
 		this.tableService.add(table, user);
 		return XJLResponse.successInstance();
 	}
+	@ResponseBody
+	@RequestMapping(value="/delete",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse delete(@RequestBody List<Table> list){
+		User user = this.userService.queryFixUser();
+		for (Table table : list) {
+			this.tableService.delete(table, user);
+		}
+		return XJLResponse.successInstance();
+		
+	}
+	@ResponseBody
+	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse modify(@RequestBody Table table){
+		User user = this.userService.queryFixUser();
+		this.tableService.modify(table, user);
+		return XJLResponse.successInstance();
+	}
 }
