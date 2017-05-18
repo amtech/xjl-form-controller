@@ -67,7 +67,7 @@ public class TableFieldController {
 	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse modify(@RequestBody TableField tableField){
 		User user = this.userService.queryFixUser();
-		this.tableService.modify(tableField, user);
+		this.tableFieldService.modify(tableField, user);
 		return XJLResponse.successInstance();
 	}
 }
