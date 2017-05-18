@@ -1,7 +1,9 @@
 package com.xjl.pt.form.controller;
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +19,6 @@ import com.xjl.pt.core.service.UserInfoService;
 import com.xjl.pt.core.service.UserPwdService;
 import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.security.Coder;
-
 /**
  * 用户信息控制类
  * @author guan.zheyuan
@@ -35,15 +36,16 @@ public class UserController {
 	private VerifyCode verifyCode;
 	@Autowired
 	private SMS sms;
+	
+	
 	/**
 	 * 执行用户添加
-	 * @param user
-	 * @return
+	 * @throws IOException 
 	 */
 	@SuppressWarnings("static-access")
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse add(@RequestBody Map<String, Object> models){
+	public void add(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response) throws IOException{
 		//添加用户信息
 		User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		String userId = UUID.randomUUID().toString();
@@ -69,17 +71,18 @@ public class UserController {
 		 userInfo.setPhoneNo(models.get("phone").toString());
 		 userInfo.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
 		 this.userInfoService.add(userInfo, userDefault);
-		 return XJLResponse.successInstance();
-	}
+		 response.getWriter().write("true");
+	} 
 	
 	/**
 	 * 调用短信服务发送短信
+	 * @throws IOException 
 	 */
 	@RequestMapping(value="/sendMsg",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse  sendMessage(HttpServletRequest request){
+	public void  sendMessage(HttpServletRequest request,HttpServletResponse response) throws IOException{
 		String phone =  request.getParameter("phoneno");
 		String content = this.verifyCode.generate(phone, 1) ;
 		this.sms.sendVerifyCode(phone, content);
-		return XJLResponse.successInstance();
+		response.getWriter().write(content);
 	}
 }
