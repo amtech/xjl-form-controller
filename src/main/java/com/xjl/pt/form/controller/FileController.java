@@ -77,7 +77,7 @@ public class FileController {
                  String savePath = request.getSession().getServletContext().getRealPath("");
                  //保存文件的路径
                  savePath = savePath + "/upload/";
-                 do {
+                 do { 
                      // 生成文件名：
                      name = UUID.randomUUID().toString();
                      String sign= request.getParameter("sign");

@@ -72,7 +72,7 @@ public class UserController {
 		 userInfo.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
 		 this.userInfoService.add(userInfo, userDefault);
 		 response.getWriter().write("true");
-	}
+	} 
 	
 	/**
 	 * 调用短信服务发送短信
