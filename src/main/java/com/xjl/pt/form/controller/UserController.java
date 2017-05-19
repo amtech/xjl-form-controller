@@ -4,11 +4,14 @@ import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.xjl.notification.sms.SMS;
 import com.xjl.notification.verifyCode.VerifyCode;
@@ -45,9 +48,26 @@ public class UserController {
 	@SuppressWarnings("static-access")
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
-	public void add(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response) throws IOException{
+	public XJLResponse add(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response) throws IOException{
 		//添加用户信息
 		User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+		String cardNo =  String.valueOf(models.get("cardno"));
+		String phoneNo = String.valueOf(models.get("phone"));
+		//验证身份证是否唯一
+		XJLResponse xjlResponse = null;
+		if(null != this.userInfoService.queryByCardNo(cardNo)){
+			xjlResponse = new XJLResponse();
+			xjlResponse.setErrorMsg("您输入的身份证已经存在");
+			xjlResponse.setSuccess(false);
+			 return xjlResponse;
+		}
+		//验证手机号码是否唯一
+		if(null != this.userInfoService.queryByPhoneNo(phoneNo)){
+			xjlResponse = new XJLResponse();
+			xjlResponse.setErrorMsg("您输入的手机号已经存在");
+			xjlResponse.setSuccess(false);
+			return xjlResponse;
+		}
 		String userId = UUID.randomUUID().toString();
 		//执行用户插入
 		 User user = new User();
@@ -67,22 +87,41 @@ public class UserController {
 		 UserInfo userInfo = new UserInfo();
 		 userInfo.setUserId(userId);
 		 userInfo.setUserName(models.get("userName").toString());
-		 userInfo.setCardNo(models.get("cardno").toString());
+		 userInfo.setCardNo(cardNo);
 		 userInfo.setPhoneNo(models.get("phone").toString());
 		 userInfo.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
 		 this.userInfoService.add(userInfo, userDefault);
-		 response.getWriter().write("true");
+		 return XJLResponse.successInstance();
 	} 
+	
+	/**
+	 * 用户实名认证
+	 */
+	@ResponseBody
+	@RequestMapping(value="/realNameCertification",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse  realNameCertification(@RequestBody Map<String, Object> models){
+		String handShot = String.valueOf(models.get("handShot"));
+		String cardPhoto = String.valueOf(models.get("cardPhoto"));
+		String cardBackPhoto = String.valueOf(models.get("cardBackPhoto"));
+		String cardNo = String.valueOf(models.get("cardNo"));
+		UserInfo userInfo = new UserInfo();
+		userInfo.setHandShot(handShot);
+		userInfo.setCardPhoto(cardPhoto);
+		userInfo.setCardBackPhoto(cardBackPhoto);
+		userInfo.setCardNo(cardNo);
+		this.userInfoService.modify(userInfo);
+		return XJLResponse.successInstance();
+	}
 	
 	/**
 	 * 调用短信服务发送短信
 	 * @throws IOException 
 	 */
+	@ResponseBody
 	@RequestMapping(value="/sendMsg",method=RequestMethod.POST,consumes = "application/json")
-	public void  sendMessage(HttpServletRequest request,HttpServletResponse response) throws IOException{
+	public boolean  sendMessage(HttpServletRequest request,HttpServletResponse response) throws IOException{
 		String phone =  request.getParameter("phoneno");
 		String content = this.verifyCode.generate(phone, 1) ;
-		this.sms.sendVerifyCode(phone, content);
-		response.getWriter().write(content);
+		return this.sms.sendVerifyCode(phone, content);
 	}
 }

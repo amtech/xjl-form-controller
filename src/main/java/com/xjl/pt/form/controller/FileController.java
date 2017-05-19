@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.net.SocketException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
@@ -78,8 +77,8 @@ public class FileController {
                  //保存文件的路径
                  savePath = savePath + "/upload/";
                  do { 
+                	 	 name = request.getParameter("cardNo");
                      // 生成文件名：
-                     name = UUID.randomUUID().toString();
                      String sign= request.getParameter("sign");
                      if(this.SIGN_HAND.equals(sign)){
                     	 name+="_HAND";
