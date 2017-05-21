@@ -69,11 +69,13 @@ public class UserController {
 			return xjlResponse;
 		}
 		String userId = UUID.randomUUID().toString();
+		String master= UUID.randomUUID().toString();
 		//执行用户插入
 		 User user = new User();
 		 user.setUserId(userId);
 		 user.setUserName(models.get("userName").toString());
 		 user.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
+		 user.setMaster(master);
 		 this.userService.add(user,userDefault);
 		 //执行用户密码插入
 		 UserPwd userPwd = new UserPwd();
@@ -82,6 +84,7 @@ public class UserController {
 		 String password = coder.password(models.get("cardno").toString()+models.get("password").toString(), models.get("password").toString());
 		 userPwd.setPassword(password);
 		 userPwd.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
+		 userPwd.setMaster(master);
 		 this.userPwdService.add(userPwd, userDefault);
 		 //执行用户信息插入
 		 UserInfo userInfo = new UserInfo();
@@ -90,6 +93,7 @@ public class UserController {
 		 userInfo.setCardNo(cardNo);
 		 userInfo.setPhoneNo(models.get("phone").toString());
 		 userInfo.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
+		 userInfo.setMaster(master);
 		 this.userInfoService.add(userInfo, userDefault);
 		 return XJLResponse.successInstance();
 	} 
@@ -114,14 +118,47 @@ public class UserController {
 	}
 	
 	/**
+	 * 修改用户密码
+	 */
+	@SuppressWarnings("static-access")
+	@ResponseBody
+	@RequestMapping(value="/updatePwd",method=RequestMethod.POST,consumes = "application/json")
+	public void  updatePwdByMaster(@RequestBody Map<String, Object> models){
+		String phoneNo = String.valueOf(models.get("phoneNo"));
+		UserInfo  userInfo = this.userInfoService.queryByPhoneNo(phoneNo);
+		if(null != userInfo){
+			userInfo.setUserId(UUID.randomUUID().toString());
+			this.userPwdService._resetNewId(userInfo);
+			//添加用户信息
+			User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+			 UserPwd userPwd = new UserPwd();
+			 userPwd.setUserId(UUID.randomUUID().toString());
+			 Coder coder = new Coder();
+			 String password = coder.password(userInfo.getCardNo()+models.get("password").toString(), models.get("password").toString());
+			 userPwd.setPassword(password);
+			 userPwd.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
+			 userPwd.setMaster(userInfo.getMaster());
+			 this.userPwdService.add(userPwd, userDefault);
+		}
+	}
+	
+	/**
 	 * 调用短信服务发送短信
 	 * @throws IOException 
 	 */
 	@ResponseBody
 	@RequestMapping(value="/sendMsg",method=RequestMethod.POST,consumes = "application/json")
-	public boolean  sendMessage(HttpServletRequest request,HttpServletResponse response) throws IOException{
+	public XJLResponse  sendMessage(HttpServletRequest request,HttpServletResponse response) throws IOException{
 		String phone =  request.getParameter("phoneno");
 		String content = this.verifyCode.generate(phone, 1) ;
-		return this.sms.sendVerifyCode(phone, content);
+		XJLResponse xjlResponse = new XJLResponse();
+		if(this.sms.sendVerifyCode(phone, content)){
+			xjlResponse.setSuccess(true);
+			xjlResponse.setShowMsg(content);
+		}else{
+			xjlResponse.setSuccess(false);
+			xjlResponse.setShowMsg(content);
+		}
+		return xjlResponse;
 	}
 }

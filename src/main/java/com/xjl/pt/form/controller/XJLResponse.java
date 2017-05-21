@@ -7,6 +7,7 @@ package com.xjl.pt.form.controller;
 public class XJLResponse {
 	private boolean success;
 	private String errorMsg;
+	private String showMsg;
 	private static XJLResponse successInstance;
 	//得到一个成功的返回对象
 	public static XJLResponse successInstance(){
@@ -35,5 +36,10 @@ public class XJLResponse {
 	public void setErrorMsg(String errorMsg) {
 		this.errorMsg = errorMsg;
 	}
-	
+	public String getShowMsg() {
+		return showMsg;
+	}
+	public void setShowMsg(String showMsg) {
+		this.showMsg = showMsg;
+	}
 }
