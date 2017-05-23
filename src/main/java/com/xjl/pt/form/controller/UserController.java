@@ -4,14 +4,11 @@ import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.xjl.notification.sms.SMS;
 import com.xjl.notification.verifyCode.VerifyCode;
@@ -41,6 +38,44 @@ public class UserController {
 	private SMS sms;
 	
 	
+	
+	@SuppressWarnings("static-access")
+	public XJLResponse doLogin(@RequestBody Map<String, Object> models){
+		//登录账号：身份证／手机
+		//密码
+		String loginId = String.valueOf(models.get("loginId"));
+		String password = String.valueOf(models.get("pwd"));
+		//首先验证登录账号
+		UserInfo userInfo = this.userInfoService.queryByCardNo(loginId);
+		XJLResponse xjlResponse = null;
+		//判断登录账号是否为身份证
+		if (null == userInfo) {
+			//判断登录账号是否为手机号
+			userInfo = this.userInfoService.queryByPhoneNo(loginId);
+			if (null == userInfo) {
+				xjlResponse = new XJLResponse();
+				xjlResponse.setErrorMsg("您输入的账号错误!");
+				xjlResponse.setSuccess(false);
+				 return xjlResponse;
+			}
+		}
+		//得到加密密码
+		Coder coder = new Coder();
+		String pwd = coder.password(userInfo.getCardNo()+password, password);
+		//数据库取密码相匹配
+		UserPwd userPwd = this.userPwdService.queryByMaster(userInfo);
+		if(null != userPwd){
+			if(!pwd.equals(userPwd.getPassword())){
+				xjlResponse = new XJLResponse();
+				xjlResponse.setErrorMsg("您输入的密码有误!");
+				xjlResponse.setSuccess(false);
+				 return xjlResponse;
+			}else{
+				//存入session
+			}
+		}
+		return xjlResponse;
+	}
 	/**
 	 * 执行用户添加
 	 * @throws IOException 

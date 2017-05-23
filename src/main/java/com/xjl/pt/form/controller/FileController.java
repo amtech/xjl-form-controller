@@ -25,19 +25,12 @@ import org.apache.commons.net.ftp.FTPClient;
 @Controller
 @RequestMapping("/file")
 public class FileController {
-
-	private static final String FTP_NAME="ftpxjl";
-	private static final String FTP_PASSWORD="A6CCxjl";
-	private static final String FTP_IP="123.57.4.104";
-	private static final String FTP_PATH="/home/ftpxjl";
 	
-	private static final String SIGN_FRONT="front";
-	private static final String SIGN_BACK="back";
-	private static final String SIGN_HAND="hand";
+	
 	/**
 	 * 执行证照上传
 	 */
-	@SuppressWarnings({ "unchecked", "unused", "rawtypes", "static-access" })
+	@SuppressWarnings({ "unchecked", "unused", "rawtypes"})
 	@RequestMapping(value="/uploadFile")
 	public void fileUpload(HttpServletRequest request,HttpServletResponse response){
 		DiskFileItemFactory fac = new DiskFileItemFactory();
@@ -72,24 +65,17 @@ public class FileController {
                  if (name.lastIndexOf(".") >= 0) {
                     extName = name.substring(name.lastIndexOf("."));
                  }
-                 File file = null;
                  String savePath = request.getSession().getServletContext().getRealPath("");
-                 //保存文件的路径
-                 savePath = savePath + "/upload/";
+                 //备份文件的路径
+                 savePath = savePath +SystemConstant.BACKUP_FOLDER;
+                 File file = null;
                  do { 
-                	 	 name = request.getParameter("cardNo");
                      // 生成文件名：
                      String sign= request.getParameter("sign");
-                     if(this.SIGN_HAND.equals(sign)){
-                    	 name+="_HAND";
-                     }else if(this.SIGN_BACK.equals(sign)){
-                    	 name+="_BACK";
-                     }else if (this.SIGN_FRONT.equals(sign)) {
-                    	 name+="_FRONT";
- 					}
+                     name = this.gainNewFileName(sign,request.getParameter("cardNo"));
                      file = new File(savePath + name + extName);
                  } while (file.exists());
-                 File saveFile = new File(savePath + name + extName);
+                 	File saveFile = new File(savePath + name + extName);
                  try {
                      item.write(saveFile);
                      uploadFtp(saveFile);
@@ -104,7 +90,6 @@ public class FileController {
 	/**
 	 * 上传ftp服务器
 	 */
-	@SuppressWarnings("static-access")
 	public  void  uploadFtp(File file){
 		//创建ftp  
         FTPClient ftpClient = new FTPClient();  
@@ -113,11 +98,11 @@ public class FileController {
         // 建立FTP连接  
         try {
         		//链接ftp
-			ftpClient.connect(this.FTP_IP);
+			ftpClient.connect(SystemConstant.FTP_IP);
 			//判断是否登录成功
-			if(ftpClient.login(this.FTP_NAME, this.FTP_PASSWORD)){
+			if(ftpClient.login(SystemConstant.FTP_NAME, SystemConstant.FTP_PASSWORD)){
 				//判断路径
-				if(ftpClient.changeWorkingDirectory(this.FTP_PATH)){
+				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH)){
 						if(null != file){
 							FileInputStream fis = new FileInputStream(file);
 							ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -152,5 +137,20 @@ public class FileController {
 				e.printStackTrace();
 			}
 		}
+	}
+	/**
+	 * 生成新文件名
+	 */
+	public String gainNewFileName(String sign,String name){
+		if (SystemConstant.SIGN_FRONT.equals(sign)) {
+			name+=SystemConstant.SIGN_FRONT_VALUE;
+		}else if (SystemConstant.SIGN_BACK.equals(sign)) {
+			name+=SystemConstant.SIGN_BACKA_VALUE;
+		}else if (SystemConstant.SIGN_HAND.equals(sign)) {
+			name+=SystemConstant.SIGN_HAND_VALUE;
+		}else {
+			name+="_";
+		}
+		return name;
 	}
 }
