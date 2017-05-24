@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,13 +39,15 @@ public class UserController {
 	private SMS sms;
 	
 	
-	
+	/**
+	 * 登录
+	 */
 	@SuppressWarnings("static-access")
-	public XJLResponse doLogin(@RequestBody Map<String, Object> models){
-		//登录账号：身份证／手机
-		//密码
+	@ResponseBody
+	@RequestMapping(value="/login",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse doLogin(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response){
 		String loginId = String.valueOf(models.get("loginId"));
-		String password = String.valueOf(models.get("pwd"));
+		String password = String.valueOf(models.get("loginPwd"));
 		//首先验证登录账号
 		UserInfo userInfo = this.userInfoService.queryByCardNo(loginId);
 		XJLResponse xjlResponse = null;
@@ -72,9 +75,20 @@ public class UserController {
 				 return xjlResponse;
 			}else{
 				//存入session
+				 request.getSession().setAttribute(SystemConstant.SESSION_USER, userInfo);//登录成功，将用户数据放入到Session
+				 xjlResponse = new XJLResponse();
+				 xjlResponse.setSuccess(true);
 			}
 		}
 		return xjlResponse;
+	}
+	/**
+	 * 退出登录
+	 */
+	public void loginOut(HttpServletRequest request,HttpServletResponse response){
+		HttpSession session = request.getSession(false);//防止创建Session
+		if (null == session) {}
+		session.removeAttribute(SystemConstant.SESSION_USER);
 	}
 	/**
 	 * 执行用户添加
@@ -183,8 +197,8 @@ public class UserController {
 	 */
 	@ResponseBody
 	@RequestMapping(value="/sendMsg",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse  sendMessage(HttpServletRequest request,HttpServletResponse response) throws IOException{
-		String phone =  request.getParameter("phoneno");
+	public XJLResponse  sendMessage(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{
+		String phone =  String.valueOf(models.get("phoneno"));
 		String content = this.verifyCode.generate(phone, 1) ;
 		XJLResponse xjlResponse = new XJLResponse();
 		if(this.sms.sendVerifyCode(phone, content)){
