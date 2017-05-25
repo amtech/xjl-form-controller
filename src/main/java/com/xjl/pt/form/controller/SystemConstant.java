@@ -1,48 +1,48 @@
 package com.xjl.pt.form.controller;
 /**
- * ¶¨ÒåÏµÍ³³£Á¿
+ * å®šä¹‰ç³»ç»Ÿå¸¸é‡
  * @author guan.zheyuan
  */
 public class SystemConstant {
 
 	/**
-	 * ftpÕËºÅ
+	 * ftpè´¦å·
 	 */
 	public  static final String FTP_NAME="ftpxjl";
 	/**
-	 * ftpÃÜÂë 
+	 * ftpå¯†ç  
 	 */
 	public static final String FTP_PASSWORD="A6CCxjl";
 	/**
-	 * ftp·şÎñÆ÷µØÖ·
+	 * ftpæœåŠ¡å™¨åœ°å€
 	 */
 	public static final String FTP_IP="123.57.4.104";
 	/**
-	 * ftpÄ¿Â¼µØÖ·
+	 * ftpç›®å½•åœ°å€
 	 */
 	public static final String FTP_PATH="/home/ftpxjl";
 	/**
-	 * ±¸·İÄ¿Â¼
+	 * å¤‡ä»½ç›®å½•
 	 */
 	public static final String BACKUP_FOLDER="/upload/";
 	/**
-	 * Ö¤ÕÕ£ºÕıÃæ
+	 * è¯ç…§ï¼šæ­£é¢
 	 */
 	public static final String SIGN_FRONT="front";
 	public static final String SIGN_FRONT_VALUE="_FRONT";
 	/**
-	 * Ö¤ÕÕ£º·´Ãæ
+	 * è¯ç…§ï¼šåé¢
 	 */
 	public static final String SIGN_BACK="back";
 	public static final String SIGN_BACKA_VALUE="_BACK";
 	/**
-	 * Ö¤ÕÕ£ºÊÖ³Ö
+	 * è¯ç…§ï¼šæ‰‹æŒ
 	 */
 	public static final String SIGN_HAND="hand";
 	public static final String SIGN_HAND_VALUE="_HAND";
 	
 	/**
-	 * SessionÖĞµÄÓÃ»§key£¨²»¿ÉĞŞ¸Ä£©
+	 * Sessionä¸­çš„ç”¨æˆ·keyï¼ˆä¸å¯ä¿®æ”¹ï¼‰
 	 */
 	public static final String SESSION_USER = "SESSION_USER";
 }

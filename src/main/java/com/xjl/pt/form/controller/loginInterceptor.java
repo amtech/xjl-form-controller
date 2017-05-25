@@ -7,7 +7,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.xjl.pt.core.domain.UserInfo;
 /**
- * µÇÂ¼ÈÏÖ¤À¹½ØÆ÷
+ * ç™»å½•è®¤è¯æ‹¦æˆªå™¨
  * @author guan.zheyuan
  */
 public class loginInterceptor implements HandlerInterceptor{

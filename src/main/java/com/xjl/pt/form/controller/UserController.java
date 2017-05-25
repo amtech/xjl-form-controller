@@ -21,7 +21,7 @@ import com.xjl.pt.core.service.UserPwdService;
 import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.security.Coder;
 /**
- * ÓÃ»§ĞÅÏ¢¿ØÖÆÀà
+ * ç”¨æˆ·ä¿¡æ¯æ§åˆ¶ç±»
  * @author guan.zheyuan
  */
 @Controller
@@ -40,7 +40,7 @@ public class UserController {
 	
 	
 	/**
-	 * µÇÂ¼
+	 * ç™»å½•
 	 */
 	@SuppressWarnings("static-access")
 	@ResponseBody
@@ -48,34 +48,34 @@ public class UserController {
 	public XJLResponse doLogin(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response){
 		String loginId = String.valueOf(models.get("loginId"));
 		String password = String.valueOf(models.get("loginPwd"));
-		//Ê×ÏÈÑéÖ¤µÇÂ¼ÕËºÅ
+		//é¦–å…ˆéªŒè¯ç™»å½•è´¦å·
 		UserInfo userInfo = this.userInfoService.queryByCardNo(loginId);
 		XJLResponse xjlResponse = null;
-		//ÅĞ¶ÏµÇÂ¼ÕËºÅÊÇ·ñÎªÉí·İÖ¤
+		//åˆ¤æ–­ç™»å½•è´¦å·æ˜¯å¦ä¸ºèº«ä»½è¯
 		if (null == userInfo) {
-			//ÅĞ¶ÏµÇÂ¼ÕËºÅÊÇ·ñÎªÊÖ»úºÅ
+			//åˆ¤æ–­ç™»å½•è´¦å·æ˜¯å¦ä¸ºæ‰‹æœºå·
 			userInfo = this.userInfoService.queryByPhoneNo(loginId);
 			if (null == userInfo) {
 				xjlResponse = new XJLResponse();
-				xjlResponse.setErrorMsg("ÄúÊäÈëµÄÕËºÅ´íÎó!");
+				xjlResponse.setErrorMsg("æ‚¨è¾“å…¥çš„è´¦å·é”™è¯¯!");
 				xjlResponse.setSuccess(false);
 				 return xjlResponse;
 			}
 		}
-		//µÃµ½¼ÓÃÜÃÜÂë
+		//å¾—åˆ°åŠ å¯†å¯†ç 
 		Coder coder = new Coder();
 		String pwd = coder.password(userInfo.getCardNo()+password, password);
-		//Êı¾İ¿âÈ¡ÃÜÂëÏàÆ¥Åä
+		//æ•°æ®åº“å–å¯†ç ç›¸åŒ¹é…
 		UserPwd userPwd = this.userPwdService.queryByUserId(userInfo);
 		if(null != userPwd){
 			if(!pwd.equals(userPwd.getPassword())){
 				xjlResponse = new XJLResponse();
-				xjlResponse.setErrorMsg("ÄúÊäÈëµÄÃÜÂëÓĞÎó!");
+				xjlResponse.setErrorMsg("æ‚¨è¾“å…¥çš„å¯†ç æœ‰è¯¯!");
 				xjlResponse.setSuccess(false);
 				 return xjlResponse;
 			}else{
-				//´æÈësession
-				 request.getSession().setAttribute(SystemConstant.SESSION_USER, userInfo);//µÇÂ¼³É¹¦£¬½«ÓÃ»§Êı¾İ·ÅÈëµ½Session
+				//å­˜å…¥session
+				 request.getSession().setAttribute(SystemConstant.SESSION_USER, userInfo);//ç™»å½•æˆåŠŸï¼Œå°†ç”¨æˆ·æ•°æ®æ”¾å…¥åˆ°Session
 				 xjlResponse = new XJLResponse();
 				 xjlResponse.setSuccess(true);
 			}
@@ -83,50 +83,50 @@ public class UserController {
 		return xjlResponse;
 	}
 	/**
-	 * ÍË³öµÇÂ¼
+	 * é€€å‡ºç™»å½•
 	 */
 	public void loginOut(HttpServletRequest request,HttpServletResponse response){
-		HttpSession session = request.getSession(false);//·ÀÖ¹´´½¨Session
+		HttpSession session = request.getSession(false);//é˜²æ­¢åˆ›å»ºSession
 		if (null == session) {}
 		session.removeAttribute(SystemConstant.SESSION_USER);
 	}
 	/**
-	 * Ö´ĞĞÓÃ»§Ìí¼Ó
+	 * æ‰§è¡Œç”¨æˆ·æ·»åŠ 
 	 * @throws IOException 
 	 */
 	@SuppressWarnings("static-access")
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse add(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response) throws IOException{
-		//Ìí¼ÓÓÃ»§ĞÅÏ¢
+		//æ·»åŠ ç”¨æˆ·ä¿¡æ¯
 		User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		String cardNo =  String.valueOf(models.get("cardno"));
 		String phoneNo = String.valueOf(models.get("phone"));
-		//ÑéÖ¤Éí·İÖ¤ÊÇ·ñÎ¨Ò»
+		//éªŒè¯èº«ä»½è¯æ˜¯å¦å”¯ä¸€
 		XJLResponse xjlResponse = null;
 		if(null != this.userInfoService.queryByCardNo(cardNo)){
 			xjlResponse = new XJLResponse();
-			xjlResponse.setErrorMsg("ÄúÊäÈëµÄÉí·İÖ¤ÒÑ¾­´æÔÚ");
+			xjlResponse.setErrorMsg("æ‚¨è¾“å…¥çš„èº«ä»½è¯å·²ç»å­˜åœ¨");
 			xjlResponse.setSuccess(false);
 			 return xjlResponse;
 		}
-		//ÑéÖ¤ÊÖ»úºÅÂëÊÇ·ñÎ¨Ò»
+		//éªŒè¯æ‰‹æœºå·ç æ˜¯å¦å”¯ä¸€
 		if(null != this.userInfoService.queryByPhoneNo(phoneNo)){
 			xjlResponse = new XJLResponse();
-			xjlResponse.setErrorMsg("ÄúÊäÈëµÄÊÖ»úºÅÒÑ¾­´æÔÚ");
+			xjlResponse.setErrorMsg("æ‚¨è¾“å…¥çš„æ‰‹æœºå·å·²ç»å­˜åœ¨");
 			xjlResponse.setSuccess(false);
 			return xjlResponse;
 		}
 		String userId = UUID.randomUUID().toString();
 		String master= UUID.randomUUID().toString();
-		//Ö´ĞĞÓÃ»§²åÈë
+		//æ‰§è¡Œç”¨æˆ·æ’å…¥
 		 User user = new User();
 		 user.setUserId(userId);
 		 user.setUserName(models.get("userName").toString());
 		 user.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
 		 user.setMaster(master);
 		 this.userService.add(user,userDefault);
-		 //Ö´ĞĞÓÃ»§ÃÜÂë²åÈë
+		 //æ‰§è¡Œç”¨æˆ·å¯†ç æ’å…¥
 		 UserPwd userPwd = new UserPwd();
 		 userPwd.setUserId(userId);
 		 Coder coder = new Coder();
@@ -135,7 +135,7 @@ public class UserController {
 		 userPwd.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
 		 userPwd.setMaster(master);
 		 this.userPwdService.add(userPwd, userDefault);
-		 //Ö´ĞĞÓÃ»§ĞÅÏ¢²åÈë
+		 //æ‰§è¡Œç”¨æˆ·ä¿¡æ¯æ’å…¥
 		 UserInfo userInfo = new UserInfo();
 		 userInfo.setUserId(userId);
 		 userInfo.setUserName(models.get("userName").toString());
@@ -148,7 +148,7 @@ public class UserController {
 	} 
 	
 	/**
-	 * ÓÃ»§ÊµÃûÈÏÖ¤
+	 * ç”¨æˆ·å®åè®¤è¯
 	 */
 	@ResponseBody
 	@RequestMapping(value="/realNameCertification",method=RequestMethod.POST,consumes = "application/json")
@@ -167,7 +167,7 @@ public class UserController {
 	}
 	
 	/**
-	 * ĞŞ¸ÄÓÃ»§ÃÜÂë
+	 * ä¿®æ”¹ç”¨æˆ·å¯†ç 
 	 */
 	@SuppressWarnings("static-access")
 	@ResponseBody
@@ -179,7 +179,7 @@ public class UserController {
 		if(null != userInfo){
 			userInfo.setUserId(UUID.randomUUID().toString());
 			this.userPwdService._resetNewId(userInfo);
-			//Ìí¼ÓÓÃ»§ĞÅÏ¢
+			//æ·»åŠ ç”¨æˆ·ä¿¡æ¯
 			User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 			UserPwd userPwd = new UserPwd();
 			userPwd.setUserId(userId);
@@ -194,7 +194,7 @@ public class UserController {
 	}
 	
 	/**
-	 * µ÷ÓÃ¶ÌĞÅ·şÎñ·¢ËÍ¶ÌĞÅ
+	 * è°ƒç”¨çŸ­ä¿¡æœåŠ¡å‘é€çŸ­ä¿¡
 	 * @throws IOException 
 	 */
 	@ResponseBody

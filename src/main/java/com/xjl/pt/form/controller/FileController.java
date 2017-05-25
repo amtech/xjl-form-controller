@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.apache.commons.net.ftp.FTPClient;
 /**
- * ÎÄ¼ş¿ØÖÆÆ÷
+ * æ–‡ä»¶æ§åˆ¶å™¨
  * @author guan.zheyuan
  */
 @Controller
@@ -28,7 +28,7 @@ public class FileController {
 	
 	
 	/**
-	 * Ö´ĞĞÖ¤ÕÕÉÏ´«
+	 * æ‰§è¡Œè¯ç…§ä¸Šä¼ 
 	 */
 	@SuppressWarnings({ "unchecked", "unused", "rawtypes"})
 	@RequestMapping(value="/uploadFile")
@@ -47,13 +47,13 @@ public class FileController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}  
-		 //µü´úÆ÷,ËÑË÷Ç°¶Ë·¢ËÍ¹ıÀ´µÄÎÄ¼ş
+		 //è¿­ä»£å™¨,æœç´¢å‰ç«¯å‘é€è¿‡æ¥çš„æ–‡ä»¶
         Iterator<FileItem> it = fileList.iterator();
         String name = "";
         String extName = "";
         while (it.hasNext()) {
         	 	FileItem item = it.next();
-        	 	//ÅĞ¶Ï¸Ã±íµ¥ÏîÊÇ·ñÊÇÆÕÍ¨ÀàĞÍ
+        	 	//åˆ¤æ–­è¯¥è¡¨å•é¡¹æ˜¯å¦æ˜¯æ™®é€šç±»å‹
              if (!item.isFormField()) {
             	 	name = item.getName();
                  long size = item.getSize();
@@ -61,16 +61,16 @@ public class FileController {
                  if (name == null || name.trim().equals("")) {
                      continue;
                  }
-                 // À©Õ¹Ãû¸ñÊ½£º extName¾ÍÊÇÎÄ¼şµÄºó×º,ÀıÈç .txt
+                 // æ‰©å±•åæ ¼å¼ï¼š extNameå°±æ˜¯æ–‡ä»¶çš„åç¼€,ä¾‹å¦‚ .txt
                  if (name.lastIndexOf(".") >= 0) {
                     extName = name.substring(name.lastIndexOf("."));
                  }
                  String savePath = request.getSession().getServletContext().getRealPath("");
-                 //±¸·İÎÄ¼şµÄÂ·¾¶
+                 //å¤‡ä»½æ–‡ä»¶çš„è·¯å¾„
                  savePath = savePath +SystemConstant.BACKUP_FOLDER;
                  File file = null;
                  do { 
-                     // Éú³ÉÎÄ¼şÃû£º
+                     // ç”Ÿæˆæ–‡ä»¶åï¼š
                      String sign= request.getParameter("sign");
                      name = this.gainNewFileName(sign,request.getParameter("cardNo"));
                      file = new File(savePath + name + extName);
@@ -88,20 +88,20 @@ public class FileController {
 	}
 	
 	/**
-	 * ÉÏ´«ftp·şÎñÆ÷
+	 * ä¸Šä¼ ftpæœåŠ¡å™¨
 	 */
 	public  void  uploadFtp(File file){
-		//´´½¨ftp  
+		//åˆ›å»ºftp  
         FTPClient ftpClient = new FTPClient();  
         ByteArrayInputStream bis = null;
         byte[] buffer = null;
-        // ½¨Á¢FTPÁ¬½Ó  
+        // å»ºç«‹FTPè¿æ¥  
         try {
-        		//Á´½Óftp
+        		//é“¾æ¥ftp
 			ftpClient.connect(SystemConstant.FTP_IP);
-			//ÅĞ¶ÏÊÇ·ñµÇÂ¼³É¹¦
+			//åˆ¤æ–­æ˜¯å¦ç™»å½•æˆåŠŸ
 			if(ftpClient.login(SystemConstant.FTP_NAME, SystemConstant.FTP_PASSWORD)){
-				//ÅĞ¶ÏÂ·¾¶
+				//åˆ¤æ–­è·¯å¾„
 				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH)){
 						if(null != file){
 							FileInputStream fis = new FileInputStream(file);
@@ -129,9 +129,9 @@ public class FileController {
 			e.printStackTrace();
 		} finally {
 			try {
-				// ¹Ø±ÕÊäÈëÁ÷
+				// å…³é—­è¾“å…¥æµ
 				IOUtils.closeQuietly(bis);
-				// ¹Ø±ÕÁ¬½Ó  
+				// å…³é—­è¿æ¥  
 				ftpClient.disconnect();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -139,7 +139,7 @@ public class FileController {
 		}
 	}
 	/**
-	 * Éú³ÉĞÂÎÄ¼şÃû
+	 * ç”Ÿæˆæ–°æ–‡ä»¶å
 	 */
 	public String gainNewFileName(String sign,String name){
 		if (SystemConstant.SIGN_FRONT.equals(sign)) {
