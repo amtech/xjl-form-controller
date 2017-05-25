@@ -1,11 +1,8 @@
-package com.xjl.pt.form.controller;
-
+package com.xjl.pt.form.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.xjl.pt.core.domain.UserInfo;
 /**
  * 登录认证拦截器
  * @author guan.zheyuan

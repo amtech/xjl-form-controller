@@ -1,4 +1,4 @@
-package com.xjl.pt.form.controller;
+package com.xjl.pt.form.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
