@@ -66,7 +66,7 @@ public class UserController {
 		Coder coder = new Coder();
 		String pwd = coder.password(userInfo.getCardNo()+password, password);
 		//数据库取密码相匹配
-		UserPwd userPwd = this.userPwdService.queryByMaster(userInfo);
+		UserPwd userPwd = this.userPwdService.queryByUserId(userInfo);
 		if(null != userPwd){
 			if(!pwd.equals(userPwd.getPassword())){
 				xjlResponse = new XJLResponse();
@@ -172,23 +172,25 @@ public class UserController {
 	@SuppressWarnings("static-access")
 	@ResponseBody
 	@RequestMapping(value="/updatePwd",method=RequestMethod.POST,consumes = "application/json")
-	public void  updatePwdByMaster(@RequestBody Map<String, Object> models){
+	public XJLResponse  updatePwdByMaster(@RequestBody Map<String, Object> models){
 		String phoneNo = String.valueOf(models.get("phoneNo"));
 		UserInfo  userInfo = this.userInfoService.queryByPhoneNo(phoneNo);
+		String userId = userInfo.getUserId();
 		if(null != userInfo){
 			userInfo.setUserId(UUID.randomUUID().toString());
 			this.userPwdService._resetNewId(userInfo);
 			//添加用户信息
 			User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
-			 UserPwd userPwd = new UserPwd();
-			 userPwd.setUserId(UUID.randomUUID().toString());
-			 Coder coder = new Coder();
-			 String password = coder.password(userInfo.getCardNo()+models.get("password").toString(), models.get("password").toString());
-			 userPwd.setPassword(password);
-			 userPwd.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
-			 userPwd.setMaster(userInfo.getMaster());
-			 this.userPwdService.add(userPwd, userDefault);
+			UserPwd userPwd = new UserPwd();
+			userPwd.setUserId(userId);
+			Coder coder = new Coder();
+			String password = coder.password(userInfo.getCardNo()+models.get("password").toString(), models.get("password").toString());
+			userPwd.setPassword(password);
+			userPwd.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
+			userPwd.setMaster(userInfo.getMaster());
+			this.userPwdService.add(userPwd, userDefault);
 		}
+		return XJLResponse.successInstance();
 	}
 	
 	/**
