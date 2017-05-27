@@ -158,9 +158,9 @@ public class UserController {
 		String cardBackPhoto = String.valueOf(models.get("cardBackPhoto"));
 		String cardNo = String.valueOf(models.get("cardNo"));
 		UserInfo userInfo = new UserInfo();
-		userInfo.setHandShot(handShot);
-		userInfo.setCardPhoto(cardPhoto);
-		userInfo.setCardBackPhoto(cardBackPhoto);
+		userInfo.setHandShotPhotoUrl(handShot);
+		userInfo.setHandCardPhotoUrl(cardPhoto);
+		userInfo.setCardBackPhotoUrl(cardBackPhoto);
 		userInfo.setCardNo(cardNo);
 		this.userInfoService.modify(userInfo);
 		return XJLResponse.successInstance();
