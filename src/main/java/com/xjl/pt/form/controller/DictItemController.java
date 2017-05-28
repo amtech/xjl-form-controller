@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.xjl.pt.core.domain.DictValue;
+import com.xjl.pt.core.domain.DictItem;
 import com.xjl.pt.core.domain.User;
-import com.xjl.pt.core.service.DictValueService;
+import com.xjl.pt.core.service.DictItemService;
 import com.xjl.pt.core.service.UserService;
 /**
  * 
@@ -23,10 +23,10 @@ import com.xjl.pt.core.service.UserService;
  *
  */
 @Controller
-@RequestMapping("/dictValue")
-public class DictValueController {
+@RequestMapping("/dictItem")
+public class DictItemController {
 	@Autowired
-	private DictValueService dictValueService;
+	private DictItemService dictItemService;
 	@Autowired
 	private UserService userService;
 	@ResponseBody
@@ -34,19 +34,19 @@ public class DictValueController {
 	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
 		String dictId = request.getParameter("dictId");
 		String search = request.getParameter("search");
-		List<DictValue> list = null;
+		List<DictItem> list = null;
 		if (StringUtils.isEmpty(search)){
-			list = this.dictValueService.queryByDictId(dictId,page,rows);
+			list = this.dictItemService.queryByDictId(dictId,page,rows);
 		} else {
-			list = this.dictValueService.queryByDictId(dictId, search, page, rows);
+			list = this.dictItemService.queryByDictId(dictId, search, page, rows);
 		}
 		return BootstrapGridTable.getInstance(list);
 	}
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
-	public void add(@RequestBody DictValue dictValue){
+	public void add(@RequestBody DictItem dictItem){
 		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		
-		this.dictValueService.add(dictValue, user);
+		this.dictItemService.add(dictItem, user);
 	}
 }

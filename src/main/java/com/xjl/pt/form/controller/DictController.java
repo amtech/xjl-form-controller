@@ -18,7 +18,7 @@ import com.github.pagehelper.Page;
 import com.xjl.pt.core.domain.Dict;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.core.service.DictService;
-import com.xjl.pt.core.service.DictValueService;
+import com.xjl.pt.core.service.DictItemService;
 import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.form.domain.Form;
 /**
@@ -32,7 +32,7 @@ public class DictController {
 	@Autowired
 	private DictService dictService;
 	@Autowired
-	private DictValueService dictValueService;
+	private DictItemService dictItemService;
 	@Autowired
 	private UserService userService;
 	@ResponseBody
@@ -41,7 +41,7 @@ public class DictController {
 		String search = StringUtils.trimToNull(request.getParameter("search"));
 		List<Dict> list = this.dictService.queryByName(search, page, rows);
 		for (Dict dict : list) {
-			dict.setDictValueCount(this.dictValueService.countByDictId(dict.getDictId()));
+			dict.setDictItemCount(this.dictItemService.countByDictId(dict.getDictId()));
 		}
 		return BootstrapGridTable.getInstance(list);
 	}
