@@ -44,9 +44,18 @@ public class DictItemController {
 	}
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
-	public void add(@RequestBody DictItem dictItem){
+	public XJLResponse add(@RequestBody DictItem dictItem){
 		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		
 		this.dictItemService.add(dictItem, user);
+		return XJLResponse.successInstance();
+	}
+	@ResponseBody
+	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse modify(@RequestBody DictItem dictItem){
+		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+		
+		this.dictItemService.modify(dictItem, user);
+		return XJLResponse.successInstance();
 	}
 }
