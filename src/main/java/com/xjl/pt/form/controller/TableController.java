@@ -12,16 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.xjl.pt.core.domain.Table;
 import com.xjl.pt.core.domain.User;
+import com.xjl.pt.core.service.TableFieldService;
+import com.xjl.pt.core.service.TableService;
 import com.xjl.pt.core.service.UserService;
-import com.xjl.pt.form.domain.Table;
-import com.xjl.pt.form.service.TableFieldService;
-/**
- * 表的控制器
- * @author lilisheng
- *
- */
-import com.xjl.pt.form.service.TableService;
 @Controller
 @RequestMapping("/table")
 public class TableController {
