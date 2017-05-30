@@ -14,13 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.github.pagehelper.Page;
 import com.xjl.pt.core.domain.Dict;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.core.service.DictService;
 import com.xjl.pt.core.service.DictItemService;
-import com.xjl.pt.core.service.UserService;
-import com.xjl.pt.form.domain.Form;
 /**
  * 字典控制器类
  * @author li.lisheng
@@ -34,7 +31,7 @@ public class DictController {
 	@Autowired
 	private DictItemService dictItemService;
 	@Autowired
-	private UserService userService;
+	private SessionTools sessionTools;
 	@ResponseBody
 	@RequestMapping(value="/query/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
 	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
@@ -47,23 +44,23 @@ public class DictController {
 	}
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse add(@RequestBody Dict dict){
-		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+	public XJLResponse add(HttpServletRequest request, @RequestBody Dict dict){
+		User user = this.sessionTools.getUser(request);
 		this.dictService.add(dict, user);
 		return XJLResponse.successInstance();
 		
 	}
 	@ResponseBody
 	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse modify(@RequestBody Dict dict){
-		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+	public XJLResponse modify(HttpServletRequest request, @RequestBody Dict dict){
+		User user = this.sessionTools.getUser(request);
 		this.dictService.modify(dict, user);
 		return XJLResponse.successInstance();
 	}
 	@ResponseBody
 	@RequestMapping(value="/delete",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse delete(@RequestBody List<Dict> list){
-		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+	public XJLResponse delete(HttpServletRequest request, @RequestBody List<Dict> list){
+		User user = this.sessionTools.getUser(request);
 		for (Dict dict : list) {
 			System.out.println(dict.getDictId() + ":" + dict.getDictName());
 			this.dictService.delete(dict, user);
