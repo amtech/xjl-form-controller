@@ -43,6 +43,12 @@ public class DictController {
 		return BootstrapGridTable.getInstance(list);
 	}
 	@ResponseBody
+	@RequestMapping(value="/query/{id}",method=RequestMethod.GET,consumes = "application/json")
+	public Dict queryById(HttpServletRequest request, @PathVariable String dictId){
+		Dict dict = this.dictService.queryById(dictId);
+		return dict;
+	}
+	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse add(HttpServletRequest request, @RequestBody Dict dict){
 		User user = this.sessionTools.getUser(request);
@@ -62,7 +68,6 @@ public class DictController {
 	public XJLResponse delete(HttpServletRequest request, @RequestBody List<Dict> list){
 		User user = this.sessionTools.getUser(request);
 		for (Dict dict : list) {
-			System.out.println(dict.getDictId() + ":" + dict.getDictName());
 			this.dictService.delete(dict, user);
 		}
 		return XJLResponse.successInstance();
