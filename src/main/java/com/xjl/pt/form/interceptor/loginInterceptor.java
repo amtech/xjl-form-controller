@@ -1,14 +1,19 @@
 package com.xjl.pt.form.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.xjl.pt.core.domain.User;
 import com.xjl.pt.core.domain.UserInfo;
+import com.xjl.pt.core.domain.UserLog;
+import com.xjl.pt.core.domain.XJLDomain;
+import com.xjl.pt.core.service.UserLogService;
+import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.form.controller.SystemConstant;
 import com.xjl.pt.form.controller.UserLogController;
 import com.xjl.pt.form.controller.locationController;
@@ -17,7 +22,14 @@ import com.xjl.pt.form.controller.locationController;
  * @author guan.zheyuan
  */
 public class loginInterceptor implements HandlerInterceptor{
+	
+	@Autowired  
+	private UserLogService userLogService;
+	@Autowired  
+	private UserService userService;
+	
 	private static Log log = LogFactory.getLog(loginInterceptor.class);
+	
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
@@ -49,14 +61,13 @@ public class loginInterceptor implements HandlerInterceptor{
 			 log.debug("city:" + city);
 			 */
 			 //数据入库
-			 UserLogController userLogController = new UserLogController();
 			 UserInfo userInfo = (UserInfo) request.getSession().getAttribute(SystemConstant.SESSION_USER);
 			 //得到用户信息，如果未登录访问则暂时不存用户信息
 			 if (null != userInfo) {
 				 userId = String.valueOf(userInfo.getUserId());
 				 userName = String.valueOf(userInfo.getUserName());
 			}
-			 //userLogController.add(addIp, city, requestUri,userId,userName);
+			 //add(ip,city,url,userId,userName)
 			if(url.indexOf("/login") != -1){
 				return true;
 			}
@@ -65,5 +76,25 @@ public class loginInterceptor implements HandlerInterceptor{
 //				response.sendRedirect("");
 //			}
 			return true;
+	}
+	/**
+	 * 日志插入
+	 * @param ip ip地址
+	 * @param city 城市
+	 * @param url 请求路径
+	 * @param userId 用户编号
+	 * @param userName 用户姓名
+	 */
+	public  void addLog(String ip,String city,String url,String userId,String userName){
+		//添加用户信息
+		User userDefault = userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+		UserLog userLog = new UserLog();
+		userLog.setIp(ip);
+		userLog.setCity(city);
+		userLog.setUrl(url);
+		userLog.setUserId(userId);
+		userLog.setUserName(userName);
+		userLog.setState(XJLDomain.StateType.A.name());
+		userLogService.add(userLog,userDefault);
 	}
 }
