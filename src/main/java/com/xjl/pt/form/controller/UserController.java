@@ -74,8 +74,9 @@ public class UserController {
 				xjlResponse.setSuccess(false);
 				 return xjlResponse;
 			}else{
-				//存入session
-				 request.getSession().setAttribute(SystemConstant.SESSION_USER, userInfo);//登录成功，将用户数据放入到Session
+				//存入session,把user存入session
+				User user = this.userService.queryById(userInfo.getUserId());
+				 request.getSession().setAttribute(SystemConstant.SESSION_USER, user);//登录成功，将用户数据放入到Session
 				 xjlResponse = new XJLResponse();
 				 xjlResponse.setSuccess(true);
 			}
@@ -99,7 +100,6 @@ public class UserController {
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse add(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response) throws IOException{
 		//添加用户信息
-		User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		String cardNo =  String.valueOf(models.get("cardno"));
 		String phoneNo = String.valueOf(models.get("phone"));
 		//验证身份证是否唯一
@@ -117,33 +117,24 @@ public class UserController {
 			xjlResponse.setSuccess(false);
 			return xjlResponse;
 		}
-		String userId = UUID.randomUUID().toString();
-		String master= UUID.randomUUID().toString();
 		//执行用户插入
 		 User user = new User();
-		 user.setUserId(userId);
 		 user.setUserName(models.get("userName").toString());
-		 user.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
-		 user.setMaster(master);
-		 this.userService.add(user,userDefault);
+		 this.userService.add(user,null);
 		 //执行用户密码插入
 		 UserPwd userPwd = new UserPwd();
-		 userPwd.setUserId(userId);
+		 userPwd.setUserId(user.getUserId());
 		 Coder coder = new Coder();
 		 String password = coder.password(models.get("cardno").toString()+models.get("password").toString(), models.get("password").toString());
 		 userPwd.setPassword(password);
-		 userPwd.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
-		 userPwd.setMaster(master);
-		 this.userPwdService.add(userPwd, userDefault);
+		 this.userPwdService.add(userPwd, user);
 		 //执行用户信息插入
 		 UserInfo userInfo = new UserInfo();
-		 userInfo.setUserId(userId);
+		 userInfo.setUserId(user.getUserId());
 		 userInfo.setUserName(models.get("userName").toString());
 		 userInfo.setCardNo(cardNo);
 		 userInfo.setPhoneNo(models.get("phone").toString());
-		 userInfo.setOrg("91984dde-4f8d-43ac-bed1-cd8eaac9aea3");
-		 userInfo.setMaster(master);
-		 this.userInfoService.add(userInfo, userDefault);
+		 this.userInfoService.add(userInfo, user);
 		 return XJLResponse.successInstance();
 	} 
 	

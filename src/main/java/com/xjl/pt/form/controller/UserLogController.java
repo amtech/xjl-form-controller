@@ -22,6 +22,8 @@ public class UserLogController  {
 	private UserLogService userLogService;
 	@Autowired  
 	private UserService userService;
+	@Autowired
+	private SessionTools sessionTools;
 	
 	/**
 	 * 日志插入
@@ -35,8 +37,6 @@ public class UserLogController  {
 		ClassPathXmlApplicationContext xmlBeanFactory  = new ClassPathXmlApplicationContext("ApplicationContext-example.xml");
 		userLogService = (UserLogService) xmlBeanFactory.getBean("userLogService");
 		userLogService.print();
-		//添加用户信息
-		User userDefault = userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		UserLog userLog = new UserLog();
 		userLog.setIp(ip);
 		userLog.setCity(city);
@@ -44,7 +44,10 @@ public class UserLogController  {
 		userLog.setUserId(userId);
 		userLog.setUserName(userName);
 		userLog.setState(XJLDomain.StateType.A.name());
-		userLogService.add(userDefault, userLog);
+		User user = null;
+		//用户id应当从session中获取
+		//user = sessionTools.getUser(request);
+		userLogService.add(userLog, user);
 	}
  
 }
