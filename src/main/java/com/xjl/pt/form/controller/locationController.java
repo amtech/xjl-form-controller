@@ -6,13 +6,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.log4j.chainsaw.Main;
-
-import com.aliyuncs.sms.model.v20160927.QuerySmsDetailByPageResponse.stat;
 /**
  * 定位控制类
  * @author guan.zheyuan
