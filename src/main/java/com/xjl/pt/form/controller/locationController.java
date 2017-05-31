@@ -6,6 +6,10 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.aliyuncs.sms.model.v20160927.QuerySmsDetailByPageResponse.stat;
 /**
  * 定位控制类
  * @author guan.zheyuan
@@ -230,4 +234,30 @@ public class locationController {
 	     return "error open url:" + strUrl;
 	    }
    }
+    /**
+     * 得到客户端真实ip
+     * @return
+     */
+    public static String getIpAddr(HttpServletRequest request) {  
+        String ip = request.getHeader("x-forwarded-for");  
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("Proxy-Client-IP");  
+        }  
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("WL-Proxy-Client-IP");  
+        }  
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("Cdn-Src-Ip");  
+        }  
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("X-Real-IP");  
+        }  
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("Proxy-Client-IP");  
+        }  
+        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getRemoteAddr();  
+        }  
+        return ip;  
+    }  
 }

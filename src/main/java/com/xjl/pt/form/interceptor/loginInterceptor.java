@@ -33,12 +33,11 @@ public class loginInterceptor implements HandlerInterceptor{
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-		
+		System.out.println("---------------------------------------postHandle---------------------------------------------------");
 	}
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
-		
 	}
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -53,22 +52,22 @@ public class loginInterceptor implements HandlerInterceptor{
 			 String userName = "";
 			 //得到访问真实IP地址
 			 //这个地方应该用异步方法，要不然每次都等待ip138返回结果会很耗时间，并且这个地址经常访问超时，我先注释了
-			/**
-			 String addIp = locationController.getWebIP("http://www.ip138.com/ip2city.asp");
+			 //String addIp = locationController.getWebIP("http://www.ip138.com/ip2city.asp");
+			 String addIp  = locationController.getIpAddr(request);
 			 log.debug("addIp:" + addIp);
 			 //通过ip地址定位城市
 			 String city = new locationController().getAddresses(addIp,"utf-8");
 			 log.debug("city:" + city);
-			 */
 			 //数据入库
-			 UserInfo userInfo = (UserInfo) request.getSession().getAttribute(SystemConstant.SESSION_USER);
+			 User user = (User) request.getSession().getAttribute(SystemConstant.SESSION_USER);
 			 //得到用户信息，如果未登录访问则暂时不存用户信息
-			 if (null != userInfo) {
-				 userId = String.valueOf(userInfo.getUserId());
-				 userName = String.valueOf(userInfo.getUserName());
+			 if (null != user) {
+				 userId = String.valueOf(user.getUserId());
+				 userName = String.valueOf(user.getUserName());
 			}
-			 //add(ip,city,url,userId,userName)
-			if(url.indexOf("/login") != -1){
+			 //日志入库
+			 addLog(addIp,city,url,userId,userName);
+			if(url.indexOf("/login") != -1 && null == user){
 				return true;
 			}
 //			UserInfo userInfo = (UserInfo) request.getSession().getAttribute(SystemConstant.SESSION_USER);
