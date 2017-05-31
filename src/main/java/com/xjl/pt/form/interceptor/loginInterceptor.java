@@ -1,21 +1,17 @@
 package com.xjl.pt.form.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-
 import com.xjl.pt.core.domain.User;
-import com.xjl.pt.core.domain.UserInfo;
 import com.xjl.pt.core.domain.UserLog;
 import com.xjl.pt.core.domain.XJLDomain;
 import com.xjl.pt.core.service.UserLogService;
 import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.form.controller.SystemConstant;
-import com.xjl.pt.form.controller.UserLogController;
 import com.xjl.pt.form.controller.locationController;
 /**
  * 登录认证拦截器
@@ -33,7 +29,6 @@ public class loginInterceptor implements HandlerInterceptor{
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-		System.out.println("---------------------------------------postHandle---------------------------------------------------");
 	}
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
