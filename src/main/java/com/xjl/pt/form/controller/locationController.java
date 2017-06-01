@@ -257,10 +257,4 @@ public class locationController {
         }  
         return ip;  
     } 
-    
-    public static void main(String[] args) {
-    		String ipString = locationController.getWebIP("http://www.ip138.com/ip2city.asp");
-    		System.out.println(ipString);
-	}
-    
 }
