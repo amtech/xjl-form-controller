@@ -48,7 +48,8 @@ public class loginInterceptor implements HandlerInterceptor{
 			 //得到访问真实IP地址
 			 //这个地方应该用异步方法，要不然每次都等待ip138返回结果会很耗时间，并且这个地址经常访问超时，我先注释了
 			 //String addIp = locationController.getWebIP("http://www.ip138.com/ip2city.asp");
-			 String addIp  = locationController.getIpAddr(request);
+			 //String addIp  = locationController.getIpAddr(request);
+			 String addIp = locationController.getWebIP("http://www.ip138.com/ip2city.asp");
 			 log.debug("addIp:" + addIp);
 			 //通过ip地址定位城市
 			 String city = new locationController().getAddresses(addIp,"utf-8");

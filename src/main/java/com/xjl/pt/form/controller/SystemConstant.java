@@ -42,6 +42,15 @@ public class SystemConstant {
 	public static final String SIGN_HAND_VALUE="_HAND";
 	
 	/**
+	 * 标记：不同城市
+	 */
+	public static final String SIGN_CITY_VERIFY="diffcity";
+	/**
+	 * 标记：不同ip
+	 */
+	public static final String SIGN_IP_VERIFY="diffip";
+	
+	/**
 	 * Session中的用户key（不可修改）
 	 */
 	public static final String SESSION_USER = "SESSION_USER";

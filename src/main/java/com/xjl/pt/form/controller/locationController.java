@@ -69,7 +69,7 @@ public class locationController {
 	                       break;    
 	                   }    
 	               }     
-	               return region+city;    
+	               return city;    
 		     }    
      return null;    
     }    
@@ -256,5 +256,11 @@ public class locationController {
             ip = request.getRemoteAddr();  
         }  
         return ip;  
-    }  
+    } 
+    
+    public static void main(String[] args) {
+    		String ipString = locationController.getWebIP("http://www.ip138.com/ip2city.asp");
+    		System.out.println(ipString);
+	}
+    
 }

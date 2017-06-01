@@ -15,8 +15,10 @@ import com.xjl.notification.sms.SMS;
 import com.xjl.notification.verifyCode.VerifyCode;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.core.domain.UserInfo;
+import com.xjl.pt.core.domain.UserLog;
 import com.xjl.pt.core.domain.UserPwd;
 import com.xjl.pt.core.service.UserInfoService;
+import com.xjl.pt.core.service.UserLogService;
 import com.xjl.pt.core.service.UserPwdService;
 import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.security.Coder;
@@ -34,20 +36,20 @@ public class UserController {
 	@Autowired
 	private UserInfoService userInfoService;
 	@Autowired
+	private UserLogService userLogService;
+	@Autowired
 	private VerifyCode verifyCode;
 	@Autowired
 	private SMS sms;
 	
 	
 	/**
-	 * 登录
+	 * 登录验证
 	 */
-	@SuppressWarnings("static-access")
 	@ResponseBody
-	@RequestMapping(value="/login",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse doLogin(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response){
+	@RequestMapping(value="/loginVerify",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse doLoginVerify(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response){
 		String loginId = String.valueOf(models.get("loginId"));
-		String password = String.valueOf(models.get("loginPwd"));
 		//首先验证登录账号
 		UserInfo userInfo = this.userInfoService.queryByCardNo(loginId);
 		XJLResponse xjlResponse = null;
@@ -62,6 +64,41 @@ public class UserController {
 				 return xjlResponse;
 			}
 		}
+		//判断登录所在地是否与上一次一样
+		UserLog userLog = this.userLogService.queryUserLogForMax(userInfo.getUserId());
+		if (null != userLog) {
+			//String addIp = locationController.getIpAddr(request);
+			String addIp = locationController.getWebIP("http://www.ip138.com/ip2city.asp");
+			String address = locationController.getProvinceName(addIp);
+			//判断验证城市是否相同
+			if (null == address || !address.equals(userLog.getCity())) {
+				xjlResponse = new XJLResponse();
+				xjlResponse.setErrorMsg(SystemConstant.SIGN_CITY_VERIFY);
+				xjlResponse.setSuccess(false);
+				 return xjlResponse;
+			}
+			//判断验证ip是否相同
+			if(!addIp.equals(userLog.getIp())){
+				xjlResponse = new XJLResponse();
+				xjlResponse.setErrorMsg(SystemConstant.SIGN_IP_VERIFY);
+				xjlResponse.setSuccess(false);
+				 return xjlResponse;
+			}
+		}
+		return XJLResponse.successInstance();
+	}
+	/**
+	 * 登录
+	 */
+	@SuppressWarnings("static-access")
+	@ResponseBody
+	@RequestMapping(value="/login",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse doLogin(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response){
+		String password = String.valueOf(models.get("loginPwd"));
+		String loginId = String.valueOf(models.get("loginId"));
+		//首先验证登录账号
+		UserInfo userInfo = this.userInfoService.queryByCardNo(loginId);
+		XJLResponse xjlResponse = null;
 		//得到加密密码
 		Coder coder = new Coder();
 		String pwd = coder.password(userInfo.getCardNo()+password, password);
@@ -81,7 +118,7 @@ public class UserController {
 				 xjlResponse.setSuccess(true);
 			}
 		}
-		return xjlResponse;
+		return XJLResponse.successInstance();
 	}
 	/**
 	 * 退出登录
