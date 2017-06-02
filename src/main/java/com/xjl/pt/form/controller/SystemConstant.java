@@ -50,6 +50,9 @@ public class SystemConstant {
 	 */
 	public static final String SIGN_IP_VERIFY="diffip";
 	
+	
+	public static final String LOG_GETIP="http://www.ip138.com/ip2city.asp";
+	
 	/**
 	 * Session中的用户key（不可修改）
 	 */
