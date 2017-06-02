@@ -360,7 +360,6 @@ public class UserController {
     {   //对字节数组字符串进行Base64解码并生成图片  
         if (imgStr == null) //图像数据为空  
             return false;  
-        @SuppressWarnings("restriction")
 		sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();  
     try   
         {  
