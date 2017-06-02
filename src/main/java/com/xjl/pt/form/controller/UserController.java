@@ -1,13 +1,18 @@
 package com.xjl.pt.form.controller;
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.SocketException;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -306,24 +311,19 @@ public class UserController {
 	public XJLResponse  checkFace(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{
 		String base64Face = String.valueOf(models.get("base64Face"));
 		String userid = UUID.randomUUID().toString();
-		boolean flag = GenerateImage(base64Face,userid);
-		if(flag == true){
-			try{
-				FileController fileController=new FileController();
-				File file = new File("d://"+userid+".jpg");
-				fileController.uploadFtp(file);
-				String path = SystemConstant.FTP_PATH+"/"+userid+".jpg";
-				UserInfo userinfo = new UserInfo();
-				userinfo.setOrg("");
-				userinfo.setUserId(userid);
-				userinfo.setHandCardPhotoUrl(path);
-				String cardNo = "341124199406230030";
-				userinfo.setCardNo(cardNo);//预留部分，等签字确认机传来用户数据
-				this.userInfoService.insertHandCardPhotoUrl(userinfo);
-				
-			}catch(Exception e){
-				e.printStackTrace();
-			}
+		try{
+			String path=uploadFtp(base64Face,userid+"_HAND.jpg");//将base64解码成图片后上传FTP
+			//String path = SystemConstant.FTP_PATH+"/"+userid+".jpg";
+			UserInfo userinfo = new UserInfo();
+			userinfo.setOrg("");//预留部分，等签字确认机传来地区数据
+			userinfo.setMaster("");//预留部分，master用于存储逻辑删除数据中间的管理，随机数
+			userinfo.setUserId(userid);
+			userinfo.setHandCardPhotoUrl(path);
+			String cardNo = "341124199406230030";
+			userinfo.setCardNo(cardNo);//预留部分，等签字确认机传来用户数据
+			this.userInfoService.insertHandCardPhotoUrl(userinfo);
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 		XJLResponse xjlResponse = new XJLResponse();
 		xjlResponse.setSuccess(true);
@@ -346,7 +346,6 @@ public class UserController {
 		String password = coder.password(cardNo+models.get("password").toString(), models.get("password").toString());
 		userPwd.setPassword(password);
 		XJLResponse xjlResponse = new XJLResponse();
-		
 		try{
 			this.userPwdService._add(userPwd);
 			xjlResponse.setSuccess(true);
@@ -356,35 +355,65 @@ public class UserController {
 		return xjlResponse;
 	}
 	
-	public static boolean GenerateImage(String imgStr,String userid)  
-    {   //对字节数组字符串进行Base64解码并生成图片  
-        if (imgStr == null) //图像数据为空  
-            return false;  
-		sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();  
-    try   
-        {  
-            //Base64解码  
-            byte[] b = decoder.decodeBuffer(imgStr);  
-            for(int i=0;i<b.length;++i)  
-            {  
-                if(b[i]<0)  
-                {//调整异常数据  
-                    b[i]+=256;  
-                }  
-            }  
-            //生成jpeg图片  
-            String imgFilePath = "d://"+userid+".jpg";//新生成的图片  
-            OutputStream out = new FileOutputStream(imgFilePath);      
-            out.write(b);  
-            out.flush();  
-            out.close();  
-            return true;  
-        }   
-        catch (Exception e)   
-        {  
-            return false;  
-        }  
-    } 
+	/**
+	 * base64码直接上传ftp服务器
+	 */
+	public static String  uploadFtp(String base64str,String picturename){
+		//创建ftp  
+        FTPClient ftpClient = new FTPClient();  
+        ByteArrayInputStream bis = null;
+        byte[] buffer = null;
+        sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();
+        // 建立FTP连接  
+        try {
+        		//链接ftp
+			ftpClient.connect(SystemConstant.FTP_IP);
+			//判断是否登录成功
+			if(ftpClient.login(SystemConstant.FTP_NAME, SystemConstant.FTP_PASSWORD)){
+				//判断路径
+				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH)){
+						
+						if(base64str!=null || base64str!=""){
+							byte[] b = decoder.decodeBuffer(base64str);
+							ByteArrayOutputStream bos = new ByteArrayOutputStream();
+							//Base64解码  
+				            for(int i=0;i<b.length;++i)  
+				            {  
+				                if(b[i]<0)  
+				                {//调整异常数据  
+				                    b[i]+=256;  
+				                }  
+				            }
+				            bos.write(b);
+				            bos.flush();
+							bos.close();
+							buffer = bos.toByteArray();
+							bis = new ByteArrayInputStream(buffer);
+							ftpClient.setBufferSize(1024);
+							if(ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE)){
+								ftpClient.enterLocalPassiveMode();
+								ftpClient.storeFile(picturename, bis);
+							}
+						}
+				}
+			}
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				// 关闭输入流
+				IOUtils.closeQuietly(bis);
+				// 关闭连接  
+				ftpClient.disconnect();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+        return SystemConstant.FTP_PATH+"/"+picturename;
+	}
+	
 	
 	
 }
