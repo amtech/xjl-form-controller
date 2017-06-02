@@ -298,7 +298,7 @@ public class UserController {
 	}
 	
 	/**
-	 * 将用户照片上传入库  
+	 * 将用户照片上传入库  .
 	 * @throws IOException 
 	 */
 	@ResponseBody
