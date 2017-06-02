@@ -1,5 +1,8 @@
 package com.xjl.pt.form.controller;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -240,4 +243,148 @@ public class UserController {
 		}
 		return xjlResponse;
 	}
+	
+	/**
+	 * 调用短信服务发送验证码
+	 * @throws IOException 
+	 */
+	@ResponseBody
+	@RequestMapping(value="/sendverify",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse  sendverify(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{
+		String phone =  String.valueOf(models.get("phoneno"));
+		String content = this.verifyCode.generate(phone, 1) ;
+		XJLResponse xjlResponse = null;
+		UserInfo  userInfo = this.userInfoService.queryByPhoneNo(phone);
+		if(null != userInfo){
+			xjlResponse = new XJLResponse();
+			xjlResponse.setSuccess(false);
+			xjlResponse.setShowMsg("您输入的手机号已经存在");
+			return xjlResponse;
+		}
+		if(this.sms.sendVerifyCode(phone, content)){
+			xjlResponse = new XJLResponse();
+			xjlResponse.setSuccess(true);
+			xjlResponse.setShowMsg(content);
+		}else{
+			xjlResponse = new XJLResponse();
+			xjlResponse.setSuccess(false);
+			xjlResponse.setShowMsg(content);
+		}
+		return XJLResponse.successInstance();
+	}
+	
+	/**
+	 * 验证 验证码是否正确
+	 * @throws IOException 
+	 */
+	@ResponseBody
+	@RequestMapping(value="/check",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse  check(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{
+		String phone = String.valueOf(models.get("phoneno"));
+		String verify = String.valueOf(models.get("verify"));
+		String userid = String.valueOf(models.get("userid"));
+		boolean flag = this.verifyCode.check(phone, verify);
+		XJLResponse xjlResponse = new XJLResponse();
+		if(flag == true){
+			xjlResponse.setSuccess(true);
+			UserInfo userInfo = new UserInfo();
+			userInfo.setUserId(userid);
+			userInfo.setPhoneNo(phone);
+			this.userInfoService.updatePhone(userInfo);
+		}else{
+			xjlResponse.setSuccess(false);
+		}
+		return xjlResponse;
+	}
+	
+	/**
+	 * 将用户照片上传入库
+	 * @throws IOException 
+	 */
+	@ResponseBody
+	@RequestMapping(value="/checkFace",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse  checkFace(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{
+		String base64Face = String.valueOf(models.get("base64Face"));
+		String userid = UUID.randomUUID().toString();
+		boolean flag = GenerateImage(base64Face,userid);
+		if(flag == true){
+			try{
+				FileController fileController=new FileController();
+				File file = new File("d://"+userid+".jpg");
+				fileController.uploadFtp(file);
+				String path = SystemConstant.FTP_PATH+"/"+userid+".jpg";
+				UserInfo userinfo = new UserInfo();
+				userinfo.setOrg("");
+				userinfo.setUserId(userid);
+				userinfo.setHandCardPhotoUrl(path);
+				String cardNo = "341124199406230030";
+				userinfo.setCardNo(cardNo);//预留部分，等签字确认机传来用户数据
+				this.userInfoService.insertHandCardPhotoUrl(userinfo);
+				
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		XJLResponse xjlResponse = new XJLResponse();
+		xjlResponse.setSuccess(true);
+		xjlResponse.setShowMsg(userid);
+		return xjlResponse;
+	}
+	
+	/**
+	 * 签字确认机保存密码
+	 * @throws IOException 
+	 */
+	@ResponseBody
+	@RequestMapping(value="/savePassword",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse  savePassword(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{
+		String userid = String.valueOf(models.get("userid"));
+		UserPwd userPwd = new UserPwd();
+		userPwd.setUserId(userid);
+		Coder coder = new Coder();
+		String cardNo = "341124199406230030";//用户身份证号码，预留功能，等签字确认机获取全部信息后补全
+		String password = coder.password(cardNo+models.get("password").toString(), models.get("password").toString());
+		userPwd.setPassword(password);
+		XJLResponse xjlResponse = new XJLResponse();
+		try{
+			this.userPwdService._add(userPwd);
+			xjlResponse.setSuccess(true);
+		}catch(Exception e){
+			xjlResponse.setSuccess(false);
+		}
+		return xjlResponse;
+	}
+	
+	public static boolean GenerateImage(String imgStr,String userid)  
+    {   //对字节数组字符串进行Base64解码并生成图片  
+        if (imgStr == null) //图像数据为空  
+            return false;  
+        @SuppressWarnings("restriction")
+		sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();  
+    try   
+        {  
+            //Base64解码  
+            byte[] b = decoder.decodeBuffer(imgStr);  
+            for(int i=0;i<b.length;++i)  
+            {  
+                if(b[i]<0)  
+                {//调整异常数据  
+                    b[i]+=256;  
+                }  
+            }  
+            //生成jpeg图片  
+            String imgFilePath = "d://"+userid+".jpg";//新生成的图片  
+            OutputStream out = new FileOutputStream(imgFilePath);      
+            out.write(b);  
+            out.flush();  
+            out.close();  
+            return true;  
+        }   
+        catch (Exception e)   
+        {  
+            return false;  
+        }  
+    } 
+	
+	
 }
