@@ -35,6 +35,14 @@ public class DeptController {
 	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
 		String search = StringUtils.trimToNull(request.getParameter("search"));
 		List<Dept> list = this.deptservice.query(search, page, rows);
+		for (Dept dept : list) {
+			if (dept.getParentDeptId()!=null){
+				Dept parentDept = this.deptservice.queryById(dept.getParentDeptId());
+				if (parentDept != null){
+					dept.setParentDeptId$name(parentDept.getDeptName());
+				}
+			}
+		}
 		return BootstrapGridTable.getInstance(list);
 	}
 
