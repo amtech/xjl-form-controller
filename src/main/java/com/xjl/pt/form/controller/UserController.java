@@ -332,7 +332,7 @@ public class UserController {
 	}
 	
 	/**
-	 * 签字确认机保存密码
+	 * 签字确认机输入密码加密入库
 	 * @throws IOException 
 	 */
 	@ResponseBody
@@ -346,6 +346,7 @@ public class UserController {
 		String password = coder.password(cardNo+models.get("password").toString(), models.get("password").toString());
 		userPwd.setPassword(password);
 		XJLResponse xjlResponse = new XJLResponse();
+		
 		try{
 			this.userPwdService._add(userPwd);
 			xjlResponse.setSuccess(true);
