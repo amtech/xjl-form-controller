@@ -332,7 +332,7 @@ public class UserController {
 	}
 	
 	/**
-	 * 签字确认机输入密码加密入库
+	 * 签字确认机输入密码加密入库.
 	 * @throws IOException 
 	 */
 	@ResponseBody
