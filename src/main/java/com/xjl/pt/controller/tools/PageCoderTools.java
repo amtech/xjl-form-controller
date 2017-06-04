@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +84,7 @@ public class PageCoderTools {
 	private String generateModal(String jsPath,String controllerUrl, Class domain,Table table, List<TableField> fieldList){
 		StringBuffer sb = new StringBuffer();
 		sb.append("\r\n");
-		sb.append("		<div class=\"modal fade\" id=\"myModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">\r\n");
+		sb.append("		<div data-backdrop=\"false\" class=\"modal fade\" id=\"myModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">\r\n");
 		sb.append("        <div class=\"modal-dialog\" role=\"document\">\r\n");
 		sb.append("            <div class=\"modal-content\">\r\n");
 		sb.append("                <div class=\"modal-header\">\r\n");
@@ -93,13 +94,31 @@ public class PageCoderTools {
 		sb.append("                <div class=\"modal-body\">\r\n");
 		sb.append("                		\r\n");
 		for (TableField tableField : fieldList) {
+			String fieldName = XJLCoderTools.getDomainFieldName(tableField.getFieldName());
 			if (TableField.FIELD_TYPE_PK.equals(tableField.getFieldType())){
 				continue;
 			}
-			sb.append("                    <div class=\"form-group\">\r\n");
-			sb.append("                        <label for=\"txt_" + XJLCoderTools.getDomainFieldName(tableField.getFieldName()) + "\">"+ tableField.getFieldDesc() +"</label>\r\n");
-			sb.append("                        <input type=\"text\" name=\"txt_" + XJLCoderTools.getDomainFieldName(tableField.getFieldName()) + "\" data-bind=\"value:" + XJLCoderTools.getDomainFieldName(tableField.getFieldName()) + "\" class=\"form-control\" id=\"txt_" + XJLCoderTools.getDomainFieldName(tableField.getFieldName()) + "\" placeholder=\""+ tableField.getFieldDesc() +"\">\r\n");
-			sb.append("                    </div>\r\n");
+			if (TableField.FIELD_TYPE_FK.equals(tableField.getFieldType())){
+				Table fkTable = this.tableService.queryById(tableField.getTableId());
+				sb.append("                    <div class=\"input-group\" style=\"display: none\">\r\n");
+				sb.append("                        <label for=\"txt_" + fieldName + "\">"+ tableField.getFieldDesc() +"</label>\r\n");
+				sb.append("                        <input type=\"text\" name=\"txt_" + fieldName + "\" data-bind=\"value:" + fieldName + "\" class=\"form-control\" id=\"txt_" + fieldName + "\" placeholder=\""+ tableField.getFieldDesc() +"\">\r\n");
+				sb.append("                    </div>\r\n");
+				sb.append("                    <div>\r\n");
+				sb.append("                        <label for=\"txt_" + fieldName + "$name\">"+ tableField.getFieldDesc() +"</label>\r\n");
+				sb.append("                        <div class=\"input-group\">\r\n");
+				sb.append("                            <input type=\"text\" name=\"txt_" + fieldName + "$name\" data-bind=\"value:" + fieldName + "$name\" class=\"form-control\" id=\"txt_" + fieldName + "$name\" placeholder=\""+ tableField.getFieldDesc() +"\">\r\n");
+				sb.append("                            <span class=\"input-group-btn\">\r\n");
+				sb.append("                                <button id=\"btn_" + fieldName + "_select\" type=\"button\" class=\"btn btn-default\" onclick=\"window.open('"+XJLCoderTools.getDomainFieldName(fkTable.getTableName())+".html?parentSelectEvent=set" + StringUtils.capitalize(fieldName) + "&selectFlag=true')\">选择</button>\r\n");
+				sb.append("                	            </span>\r\n");
+				sb.append("                        </div>\r\n");
+				sb.append("                    </div>\r\n");
+			} else {
+				sb.append("                    <div class=\"form-group\">\r\n");
+				sb.append("                        <label for=\"txt_" + fieldName + "\">"+ tableField.getFieldDesc() +"</label>\r\n");
+				sb.append("                        <input type=\"text\" name=\"txt_" + fieldName + "\" data-bind=\"value:" + fieldName + "\" class=\"form-control\" id=\"txt_" + fieldName + "\" placeholder=\""+ tableField.getFieldDesc() +"\">\r\n");
+				sb.append("                    </div>\r\n");
+			}
 		}
 		sb.append("                </div>\r\n");
 		sb.append("                <div class=\"modal-footer\">\r\n");
@@ -117,13 +136,19 @@ public class PageCoderTools {
 		sb.append("<div class=\"panel-body\" style=\"padding-bottom:0px;\">\r\n");
 		sb.append("<div id=\"toolbar\" class=\"btn-group\">\r\n");
 		sb.append("    <button id=\"btn_add\" type=\"button\" class=\"btn btn-default\">\r\n");
-		sb.append("        <span class=\"glyphicon glyphicon-plus\" aria-hidden=\"true\"></span>新增\r\n");
+		sb.append("        <span class=\"glyphicon glyphicon-plus\" aria-hidden=\"true\" style=\"display: none\"></span>新增\r\n");
 		sb.append("    </button>\r\n");
-		sb.append("    <button id=\"btn_edit\" type=\"button\" class=\"btn btn-default\">\r\n");
+		sb.append("    <button id=\"btn_edit\" type=\"button\" class=\"btn btn-default\" style=\"display: none\">\r\n");
 		sb.append("        <span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span>修改\r\n");
 		sb.append("    </button>\r\n");
-		sb.append("    <button id=\"btn_delete\" type=\"button\" class=\"btn btn-default\">\r\n");
+		sb.append("    <button id=\"btn_delete\" type=\"button\" class=\"btn btn-default\" style=\"display: none\">\r\n");
 		sb.append("        <span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span>删除\r\n");
+		sb.append("    </button>\r\n");
+		sb.append("	    <button id=\"btn_select\" type=\"button\" class=\"btn btn-default\" style=\"display: none\" >\r\n");
+		sb.append("        <span class=\"glyphicon glyphicon-ok-circle\" aria-hidden=\"true\"></span>选择\r\n");
+		sb.append("    </button>\r\n");
+		sb.append("    <button id=\"btn_back\" type=\"button\" class=\"btn btn-default\" style=\"display: none\">\r\n");
+		sb.append("        <span class=\"glyphicon glyphicon-ban-circle\" aria-hidden=\"true\"></span>返回\r\n");
 		sb.append("    </button>\r\n");
 		sb.append("</div>\r\n");
 		sb.append("<table id=\"tb_" + XJLCoderTools.getDomainFieldName(domain.getSimpleName()) + "\" data-bind=\"myBootstrapTable:$root\">\r\n");
@@ -131,7 +156,17 @@ public class PageCoderTools {
 		sb.append("        <tr>\r\n");
 		sb.append("            <th data-checkbox=\"true\"></th>\r\n");
 		for (TableField tableField : fieldList) {
-			sb.append("            <th data-field=\"" + XJLCoderTools.getDomainFieldName(tableField.getFieldName()) + "\">"+ tableField.getFieldDesc() +"</th>\r\n");
+			if (tableField.getFieldType().equals(TableField.FIELD_TYPE_PK)){
+				//如果是主键，一般不需要显示
+				continue;
+			} 
+			sb.append("            <th data-field=\"");
+			 if (tableField.getFieldType().equals(TableField.FIELD_TYPE_FK)){
+				sb.append(XJLCoderTools.getDomainFieldName(tableField.getFieldName())+"$name");
+			} else {
+				sb.append(XJLCoderTools.getDomainFieldName(tableField.getFieldName()));
+			}
+			sb.append("\">"+ tableField.getFieldDesc() +"</th>\r\n");
 		}
 		sb.append("        </tr>\r\n");
 		sb.append("    </thead>\r\n");
@@ -172,20 +207,48 @@ public class PageCoderTools {
 		sb.append("   //1、初始化表格\r\n");
 		sb.append("    XJL.initTable(\"tb_" + XJLCoderTools.getDomainFieldName(domain.getSimpleName()) + "\",\"../rest" + controllerUrl + "\",10);\r\n");
 		sb.append("    //2、注册增删改事件\r\n");
-		sb.append("    XJL.initOperate(\"../rest" + controllerUrl + "\",{");
+		sb.append("    XJL.initOperate2(\"../rest" + controllerUrl + "\",\"");
 		for (int i = 0; i < fieldList.size(); i++){
 			TableField field = fieldList.get(i);
 			if (i>0){
 				sb.append(",");
 			}
-			sb.append(XJLCoderTools.getDomainFieldName(field.getFieldName()) + ":ko.observable()");
+			sb.append(XJLCoderTools.getDomainFieldName(field.getFieldName()));
+			//如果是外键，增加外键的名称
+			if (field.getFieldType().equals(TableField.FIELD_TYPE_FK)){
+				sb.append("," + XJLCoderTools.getDomainFieldName(field.getFieldName()) + "$name");
+			}
 		}
-		sb.append("});\r\n");
+		sb.append("\");\r\n");
 		sb.append("});\r\n");
 		sb.append("\r\n");
+		for (TableField tableField : fieldList) {
+			if (tableField.getFieldType().equals(TableField.FIELD_TYPE_FK)){
+				Table fkTable = this.tableService.queryById(tableField.getForeignTableId());
+				String fkDomainName = XJLCoderTools.getDomainFieldName(fkTable.getTableName());
+				TableField fkTablePKField = this.getPKField(fkTable.getTableId());
+				
+				sb.append("function set" + XJLCoderTools.getDomainName(tableField.getFieldName()) + "("+fkDomainName+"){\r\n");
+				sb.append("	if ("+fkDomainName+"){\r\n");
+				sb.append("		$('#txt_" + XJLCoderTools.getDomainFieldName(tableField.getFieldName()) + "').val("+fkDomainName+"."+XJLCoderTools.getDomainFieldName(fkTablePKField.getFieldName())+").change();\r\n");
+				sb.append("		$('[id=\"txt_" + XJLCoderTools.getDomainFieldName(tableField.getFieldName()) + "$name\"]').val("+fkDomainName+"."+XJLCoderTools.getDomainFieldName(fkTablePKField.getFieldName())+").change();\r\n");
+				sb.append("	}\r\n");
+				sb.append("}\r\n");
+			}
+		}
+		
 		sb.append("</script>\r\n");
 		sb.append("</head>\r\n");
 		sb.append("<body>\r\n");
 		return sb.toString();
+	}
+	private TableField getPKField(String tableId){
+		List<TableField> fieldList = this.tableFieldService.queryByTableId(tableId, 1, 100);
+		for (TableField tableField : fieldList) {
+			if (tableField.getFieldType().equals(TableField.FIELD_TYPE_PK)){
+				return tableField;
+			}
+		}
+		return null;
 	}
 }
