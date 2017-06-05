@@ -1,7 +1,13 @@
 package com.xjl.pt.form.interceptor;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
@@ -29,6 +35,7 @@ public class LogInterceptor implements HandlerInterceptor{
 	private UserService userService;
 	
 	public static List<UserLog> userLogList = new ArrayList<>();
+	public SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -81,11 +88,31 @@ public class LogInterceptor implements HandlerInterceptor{
 				userLog.setUserId(userId);
 				userLog.setUserName(userName);
 				userLog.setState(XJLDomain.StateType.A.name());
-				userLogService.add(userLog,userDefault);
+				userLog.setCreateDate(new Date());
+				userLogList.add(userLog);
+				if (userLogList.size()>5) {
+					List<UserLog> list = removeDuplicate(userLogList);
+					 for (UserLog userLog2 : list) {
+						 userLogService.add(userLog2,userDefault);
+					}
+					 userLogList.clear();
+				}
             }
         }.start();
 	}
-	
- 
-	
+	public ArrayList<UserLog> removeDuplicate(List<UserLog> userLogs){
+		  Set<UserLog> set = new TreeSet<UserLog>(new Comparator<UserLog>() {
+				@Override
+				public int compare(UserLog o1, UserLog o2) {
+					//字符串,则按照asicc码升序排列
+					int result = 0;
+					if(o1.getIp().equals(o2.getIp())){
+						result = sdf.format(o1.getCreateDate()).compareTo(sdf.format(o2.getCreateDate()));
+					} 
+	                return result;
+				}
+		  });
+		  set.addAll(userLogs);
+          return new ArrayList<UserLog>(set);
+	}
 }
