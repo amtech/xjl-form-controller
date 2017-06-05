@@ -35,7 +35,7 @@ public class LogInterceptor implements HandlerInterceptor{
 	private UserService userService;
 	
 	public static List<UserLog> userLogList = new ArrayList<>();
-	public SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+	public SimpleDateFormat sdf = new SimpleDateFormat(SystemConstant.FOMATDATE_MINUTE);
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
