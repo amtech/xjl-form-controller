@@ -76,7 +76,7 @@ public class UserController {
 		UserLog userLog = this.userLogService.queryUserLogForMax(userInfo.getUserId());
 		if (null != userLog) {
 			//String addIp = locationController.getIpAddr(request);
-			String addIp = locationController.getWebIP("http://www.ip138.com/ip2city.asp");
+			String addIp = locationController.getWebIP(SystemConstant.LOG_GETIP);
 			String address = locationController.getProvinceName(addIp);
 			//判断验证城市是否相同
 			if (null == address || !address.equals(userLog.getCity())) {
@@ -162,10 +162,12 @@ public class UserController {
 			xjlResponse.setSuccess(false);
 			return xjlResponse;
 		}
+		//添加用户信息
+		User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		//执行用户插入
 		 User user = new User();
 		 user.setUserName(models.get("userName").toString());
-		 this.userService.add(user,null);
+		 this.userService.add(user,userDefault);
 		 //执行用户密码插入
 		 UserPwd userPwd = new UserPwd();
 		 userPwd.setUserId(user.getUserId());
