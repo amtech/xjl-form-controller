@@ -106,6 +106,10 @@ public class UserController {
 		String loginId = String.valueOf(models.get("loginId"));
 		//首先验证登录账号
 		UserInfo userInfo = this.userInfoService.queryByCardNo(loginId);
+		if(null == userInfo){
+			//判断登录账号是否为手机号
+			userInfo = this.userInfoService.queryByPhoneNo(loginId);
+		}
 		XJLResponse xjlResponse = null;
 		//得到加密密码
 		Coder coder = new Coder();
