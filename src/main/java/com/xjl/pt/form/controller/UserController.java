@@ -1,18 +1,10 @@
 package com.xjl.pt.form.controller;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.SocketException;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -290,8 +282,7 @@ public class UserController {
 		String base64Face = String.valueOf(models.get("base64Face"));
 		String userid = UUID.randomUUID().toString();
 		try{
-			String path=FileController.uploadFtp(base64Face,userid+"_HAND.jpg");//将base64解码成图片后上传FTP
-			//String path = SystemConstant.FTP_PATH+"/"+userid+".jpg";
+			String path=FileController.uploadFtp(base64Face,userid+SystemConstant.SIGN_HAND_VALUE+SystemConstant.IMAGE_SUFFIX_JPG);//将base64解码成图片后上传FTP
 			UserInfo userinfo = new UserInfo();
 			userinfo.setOrg("");//预留部分，等签字确认机传来地区数据
 			userinfo.setMaster("");//预留部分，master用于存储逻辑删除数据中间的管理，随机数
@@ -313,6 +304,7 @@ public class UserController {
 	 * 签字确认机输入密码加密入库.
 	 * @throws IOException 
 	 */
+	@SuppressWarnings("static-access")
 	@ResponseBody
 	@RequestMapping(value="/savePassword",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse  savePassword(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{

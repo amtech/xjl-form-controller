@@ -212,6 +212,4 @@ public class FileController {
 		}
         return SystemConstant.FTP_PATH+"/"+picturename;
 	}
-	
-	
 }

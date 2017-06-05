@@ -56,6 +56,12 @@ public class SystemConstant {
 	public static final String LOG_GETIP="http://www.ip138.com/ip2city.asp";
 	
 	/**
+	 * 图片后缀名
+	 */
+	public static final String IMAGE_SUFFIX_JPG=".jpg";
+	public static final String IMAGE_SUFFIX_JPEG=".jpeg";
+	public static final String IMAGE_SUFFIX_PNG=".png";
+	/**
 	 * 年月日时分
 	 */
 	public static final String FOMATDATE_MINUTE="yyyy-MM-dd-HH-mm";
