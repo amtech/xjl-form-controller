@@ -262,10 +262,6 @@ public class UserController {
 		XJLResponse xjlResponse = new XJLResponse();
 		if(flag == true){
 			xjlResponse.setSuccess(true);
-			UserInfo userInfo = new UserInfo();
-			userInfo.setUserId(userid);
-			userInfo.setPhoneNo(phone);
-			this.userInfoService.modifyPhone(userInfo);
 		}else{
 			xjlResponse.setSuccess(false);
 		}
