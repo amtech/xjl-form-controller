@@ -255,34 +255,6 @@ public class UserController {
 		return xjlResponse;
 	}
 	
-	/**
-	 * 调用短信服务发送验证码
-	 * @throws IOException 
-	 */
-	@ResponseBody
-	@RequestMapping(value="/sendverify",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse  sendverify(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{
-		String phone =  String.valueOf(models.get("phoneno"));
-		String content = this.verifyCode.generate(phone, 1) ;
-		XJLResponse xjlResponse = null;
-		UserInfo  userInfo = this.userInfoService.queryByPhoneNo(phone);
-		if(null != userInfo){
-			xjlResponse = new XJLResponse();
-			xjlResponse.setSuccess(false);
-			xjlResponse.setShowMsg("您输入的手机号已经存在");
-			return xjlResponse;
-		}
-		if(this.sms.sendVerifyCode(phone, content)){
-			xjlResponse = new XJLResponse();
-			xjlResponse.setSuccess(true);
-			xjlResponse.setShowMsg(content);
-		}else{
-			xjlResponse = new XJLResponse();
-			xjlResponse.setSuccess(false);
-			xjlResponse.setShowMsg(content);
-		}
-		return XJLResponse.successInstance();
-	}
 	
 	/**
 	 * 验证 验证码是否正确
@@ -301,7 +273,7 @@ public class UserController {
 			UserInfo userInfo = new UserInfo();
 			userInfo.setUserId(userid);
 			userInfo.setPhoneNo(phone);
-			this.userInfoService.updatePhone(userInfo);
+			this.userInfoService.modifyPhone(userInfo);
 		}else{
 			xjlResponse.setSuccess(false);
 		}
@@ -318,7 +290,7 @@ public class UserController {
 		String base64Face = String.valueOf(models.get("base64Face"));
 		String userid = UUID.randomUUID().toString();
 		try{
-			String path=uploadFtp(base64Face,userid+"_HAND.jpg");//将base64解码成图片后上传FTP
+			String path=FileController.uploadFtp(base64Face,userid+"_HAND.jpg");//将base64解码成图片后上传FTP
 			//String path = SystemConstant.FTP_PATH+"/"+userid+".jpg";
 			UserInfo userinfo = new UserInfo();
 			userinfo.setOrg("");//预留部分，等签字确认机传来地区数据
@@ -327,7 +299,7 @@ public class UserController {
 			userinfo.setHandCardPhotoUrl(path);
 			String cardNo = "341124199406230030";
 			userinfo.setCardNo(cardNo);//预留部分，等签字确认机传来用户数据
-			this.userInfoService.insertHandCardPhotoUrl(userinfo);
+			this.userInfoService.addHandCardPhotoUrl(userinfo);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -361,64 +333,6 @@ public class UserController {
 		return xjlResponse;
 	}
 	
-	/**
-	 * base64码直接上传ftp服务器
-	 */
-	public static String  uploadFtp(String base64str,String picturename){
-		//创建ftp  
-        FTPClient ftpClient = new FTPClient();  
-        ByteArrayInputStream bis = null;
-        byte[] buffer = null;
-        sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();
-        // 建立FTP连接  
-        try {
-        		//链接ftp
-			ftpClient.connect(SystemConstant.FTP_IP);
-			//判断是否登录成功
-			if(ftpClient.login(SystemConstant.FTP_NAME, SystemConstant.FTP_PASSWORD)){
-				//判断路径
-				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH)){
-						
-						if(base64str!=null || base64str!=""){
-							byte[] b = decoder.decodeBuffer(base64str);
-							ByteArrayOutputStream bos = new ByteArrayOutputStream();
-							//Base64解码  
-				            for(int i=0;i<b.length;++i)  
-				            {  
-				                if(b[i]<0)  
-				                {//调整异常数据  
-				                    b[i]+=256;  
-				                }  
-				            }
-				            bos.write(b);
-				            bos.flush();
-							bos.close();
-							buffer = bos.toByteArray();
-							bis = new ByteArrayInputStream(buffer);
-							ftpClient.setBufferSize(1024);
-							if(ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE)){
-								ftpClient.enterLocalPassiveMode();
-								ftpClient.storeFile(picturename, bis);
-							}
-						}
-				}
-			}
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				// 关闭输入流
-				IOUtils.closeQuietly(bis);
-				// 关闭连接  
-				ftpClient.disconnect();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-        return SystemConstant.FTP_PATH+"/"+picturename;
-	}
 	
 	
 	
