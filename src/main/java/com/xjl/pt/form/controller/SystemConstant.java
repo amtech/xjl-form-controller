@@ -50,11 +50,19 @@ public class SystemConstant {
 	 */
 	public static final String SIGN_IP_VERIFY="diffip";
 	
-	
+	/**
+	 * 获取ip
+	 */
 	public static final String LOG_GETIP="http://www.ip138.com/ip2city.asp";
 	
+	/**
+	 * 年月日时分
+	 */
+	public static final String FOMATDATE_MINUTE="yyyy-MM-dd-HH-mm";
 	/**
 	 * Session中的用户key（不可修改）
 	 */
 	public static final String SESSION_USER = "SESSION_USER";
+	
+	
 }
