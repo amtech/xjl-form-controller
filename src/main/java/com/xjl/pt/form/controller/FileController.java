@@ -153,4 +153,65 @@ public class FileController {
 		}
 		return name;
 	}
+	
+	/**
+	 * base64码直接上传ftp服务器
+	 */
+	public static String  uploadFtp(String base64str,String picturename){
+		//创建ftp  
+        FTPClient ftpClient = new FTPClient();  
+        ByteArrayInputStream bis = null;
+        byte[] buffer = null;
+        sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();
+        // 建立FTP连接  
+        try {
+        		//链接ftp
+			ftpClient.connect(SystemConstant.FTP_IP);
+			//判断是否登录成功
+			if(ftpClient.login(SystemConstant.FTP_NAME, SystemConstant.FTP_PASSWORD)){
+				//判断路径
+				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH)){
+						
+						if(base64str!=null || base64str!=""){
+							byte[] b = decoder.decodeBuffer(base64str);
+							ByteArrayOutputStream bos = new ByteArrayOutputStream();
+							//Base64解码  
+				            for(int i=0;i<b.length;++i)  
+				            {  
+				                if(b[i]<0)  
+				                {//调整异常数据  
+				                    b[i]+=256;  
+				                }  
+				            }
+				            bos.write(b);
+				            bos.flush();
+							bos.close();
+							buffer = bos.toByteArray();
+							bis = new ByteArrayInputStream(buffer);
+							ftpClient.setBufferSize(1024);
+							if(ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE)){
+								ftpClient.enterLocalPassiveMode();
+								ftpClient.storeFile(picturename, bis);
+							}
+						}
+				}
+			}
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				// 关闭输入流
+				IOUtils.closeQuietly(bis);
+				// 关闭连接  
+				ftpClient.disconnect();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+        return SystemConstant.FTP_PATH+"/"+picturename;
+	}
+	
+	
 }
