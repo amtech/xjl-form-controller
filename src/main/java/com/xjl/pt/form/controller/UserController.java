@@ -106,7 +106,7 @@ public class UserController {
 		//得到加密密码
 		Coder coder = new Coder();
 		String pwd = coder.password(userInfo.getCardNo()+password, password);
-		//数据库取密码相匹配
+		//数据库取密码相匹配 
 		UserPwd userPwd = this.userPwdService.queryByUserId(userInfo);
 		if(null != userPwd){
 			if(!pwd.equals(userPwd.getPassword())){
