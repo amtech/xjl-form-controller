@@ -78,12 +78,12 @@ public class UserController {
 				 return xjlResponse;
 			}
 			//判断验证ip是否相同
-			if(!addIp.equals(userLog.getIp())){
-				xjlResponse = new XJLResponse();
-				xjlResponse.setErrorMsg(SystemConstant.SIGN_IP_VERIFY);
-				xjlResponse.setSuccess(false);
-				 return xjlResponse;
-			}
+//			if(!addIp.equals(userLog.getIp())){
+//				xjlResponse = new XJLResponse();
+//				xjlResponse.setErrorMsg(SystemConstant.SIGN_IP_VERIFY);
+//				xjlResponse.setSuccess(false);
+//				 return xjlResponse;
+//			}
 		}
 		return XJLResponse.successInstance();
 	}
