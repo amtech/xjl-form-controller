@@ -2,6 +2,7 @@ package com.xjl.pt.controller.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,16 +22,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xjl.pt.core.annotation.TableDB;
 import com.xjl.pt.core.domain.Dict;
+import com.xjl.pt.core.domain.DictItem;
 import com.xjl.pt.core.domain.Table;
 import com.xjl.pt.core.domain.TableField;
 import com.xjl.pt.core.domain.User;
+import com.xjl.pt.core.service.DictItemService;
 import com.xjl.pt.core.service.DictService;
 import com.xjl.pt.core.service.TableFieldService;
 import com.xjl.pt.core.service.TableService;
+import com.xjl.pt.core.tools.DictItemTools;
 import com.xjl.pt.core.tools.XJLCoderTools;
 import com.xjl.pt.form.controller.BootstrapGridTable;
 import com.xjl.pt.form.controller.SessionTools;
 import com.xjl.pt.form.controller.XJLResponse;
+import com.xjl.pt.sx.domain.SxDirItem;
 
 /**
  * 生成控制器
@@ -50,6 +55,11 @@ public class ControllerCoderTools {
 	 * @param basePackageName 基础包名
 	 */
 	public void generateController(Class domainClass,String controllerPackageName){
+		if (StringUtils.lastIndexOf(controllerPackageName, ".controller")>0){
+			//说明包含了.controller，不做任何处理
+		} else {
+			controllerPackageName+=".controller";
+		}
 		String tableName = ((TableDB)domainClass.getAnnotation(TableDB.class)).name();
 		log.debug("tableName:" + tableName + " controllerPackageName:" + controllerPackageName);
 		Table table = this.tableService.queryByName(tableName);
@@ -100,7 +110,10 @@ public class ControllerCoderTools {
 		sb.append("import com.xjl.pt.form.controller.XJLResponse;\r\n");
 		sb.append("import com.xjl.pt.form.controller.BootstrapGridTable;\r\n");
 		sb.append("import " + domainClass.getName() + ";\r\n");
+		sb.append("import com.xjl.pt.core.domain.DictItem;\r\n");
 		sb.append("import com.xjl.pt.core.domain.User;\r\n");
+		sb.append("import com.xjl.pt.core.service.DictItemService;\r\n");
+		sb.append("import com.xjl.pt.core.tools.DictItemTools;\r\n");
 		String domainPackage = domainClass.getPackage().getName();
 		String servicePackage = domainPackage.substring(0,domainPackage.length()-6) + "service";
 		String serviceName = domainClass.getSimpleName() + "Service";
@@ -110,18 +123,20 @@ public class ControllerCoderTools {
 	public String generateBodyContent(String controllerPackageName,String controllerName, Class domainClass,Table table, List<TableField> fieldList){
 		StringBuffer sb = new StringBuffer();
 		sb.append("/**\r\n");
-		sb.append(" * 字典控制器类\r\n");
-		sb.append(" * @author ControllerCoderTools\r\n");
+		sb.append(" * " + table.getTableDesc() + "控制器类\r\n");
+		sb.append(" * @author ControllerCoderTools " +System.getProperties().getProperty("user.name")+"\r\n");
 		sb.append(" *\r\n");
 		sb.append(" */\r\n");
 		sb.append("@Controller\r\n");
-		sb.append("@RequestMapping(\"/" + XJLCoderTools.getDomainFieldName(domainClass.getSimpleName()) + "\")\r\n");
+		sb.append("@RequestMapping(\"/" + StringUtils.uncapitalize(domainClass.getSimpleName()) + "\")\r\n");
 		sb.append("public class " + controllerName + " {\r\n");
 		sb.append("\t@Autowired\r\n");
 		sb.append("\tprivate SessionTools sessionTools;\r\n");
 		sb.append("\t@Autowired\r\n");
+		sb.append("\tprivate DictItemService dictItemService;\r\n");
+		sb.append("\t@Autowired\r\n");
 		String serviceClassName = domainClass.getSimpleName() + "Service";
-		String serviceName = XJLCoderTools.getDomainFieldName(serviceClassName);
+		String serviceName = StringUtils.uncapitalize(serviceClassName);
 		sb.append("\tprivate " + serviceClassName + " " + serviceName + ";\r\n");
 		sb.append(this.generateQuery(domainClass,serviceName));
 		sb.append(this.generateQueryById(domainClass, serviceName));
@@ -139,25 +154,92 @@ public class ControllerCoderTools {
 		sb.append("\tpublic BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){\r\n");
 		sb.append("\t\tString search = StringUtils.trimToNull(request.getParameter(\"search\"));\r\n");
 		sb.append("\t\tList<"+domainClass.getSimpleName() + "> list = this." + serviceName + ".query(search, page, rows);\r\n");
+		//处理字典和外键的名称
+		String domainName = StringUtils.uncapitalize(domainClass.getSimpleName());
+		String tableName = ((TableDB)domainClass.getAnnotation(TableDB.class)).name();
+		String tableId = this.tableService.queryByName(tableName).getTableId();
+		List<TableField> tableFieldList = this.tableFieldService.queryByTableId(tableId, 1, 100);
+		ArrayList<TableField> dictFieldList = new ArrayList<TableField>();
+		ArrayList<TableField> fkFieldList = new ArrayList<TableField>();
+		for (TableField tableField : tableFieldList) {
+			if (TableField.FIELD_TYPE_DICT.equals(tableField.getFieldType())){
+				dictFieldList.add(tableField);
+			} else if (TableField.FIELD_TYPE_FK.equals(tableField.getFieldType())){
+				fkFieldList.add(tableField);
+			}
+		}
+		sb.append("\t\t//处理字典\r\n");
+		if (!dictFieldList.isEmpty()){
+			for (TableField tableField : dictFieldList) {
+				String fieldName = XJLCoderTools.getDomainFieldName(tableField.getFieldName());
+				sb.append("\t\tList<DictItem> " + fieldName + "DictItems = this.dictItemService.queryByDictId(\""+tableField.getDictId()+"\", 1, 1000);\r\n");
+			}
+			sb.append("\t\tfor (" + domainClass.getSimpleName() + " " + domainName + " : list) {\r\n");
+			for (TableField tableField : dictFieldList) {
+				String fieldName = XJLCoderTools.getDomainFieldName(tableField.getFieldName());
+				sb.append("\t\t\t" + domainName + ".set" + StringUtils.capitalize(fieldName) + "$name(DictItemTools.getDictItemNames(" + domainName + ".get" + StringUtils.capitalize(fieldName) + "(), " + fieldName + "DictItems));\r\n");
+			}
+			sb.append("\t\t}\r\n");
+		}
+		if (!fkFieldList.isEmpty()){
+			for (TableField tableField : fkFieldList) {
+				
+			}
+		}
+		
+		sb.append("\t\t//处理外键\r\n");
+		
+		
 		sb.append("\t\treturn BootstrapGridTable.getInstance(list);\r\n");
 		sb.append("\t}\r\n");
 		sb.append("\r\n");
 		return sb.toString();
 	}
 	private String generateQueryById(Class domainClass,String serviceName){
-		String domainName = XJLCoderTools.getDomainFieldName(domainClass.getSimpleName());
+		String domainName = StringUtils.uncapitalize(domainClass.getSimpleName());
 		StringBuffer sb = new StringBuffer();
 		sb.append("\t@ResponseBody\r\n");
 		sb.append("\t@RequestMapping(value=\"/query/{id}\",method=RequestMethod.GET,consumes = \"application/json\")\r\n");
 		sb.append("\tpublic " + domainClass.getSimpleName() + " queryById(HttpServletRequest request, @PathVariable String id){\r\n");
 		sb.append("\t\t" + domainClass.getSimpleName() + " " + domainName + " = this." + serviceName + ".queryById(id);\r\n");
+		String tableName = ((TableDB)domainClass.getAnnotation(TableDB.class)).name();
+		String tableId = this.tableService.queryByName(tableName).getTableId();
+		List<TableField> tableFieldList = this.tableFieldService.queryByTableId(tableId, 1, 100);
+		ArrayList<TableField> dictFieldList = new ArrayList<TableField>();
+		ArrayList<TableField> fkFieldList = new ArrayList<TableField>();
+		for (TableField tableField : tableFieldList) {
+			if (TableField.FIELD_TYPE_DICT.equals(tableField.getFieldType())){
+				dictFieldList.add(tableField);
+			} else if (TableField.FIELD_TYPE_FK.equals(tableField.getFieldType())){
+				fkFieldList.add(tableField);
+			}
+		}
+		sb.append("\t\t//处理字典\r\n");
+		if (!dictFieldList.isEmpty()){
+			for (TableField tableField : dictFieldList) {
+				String fieldName = XJLCoderTools.getDomainFieldName(tableField.getFieldName());
+				sb.append("\t\tList<DictItem> " + fieldName + "DictItems = this.dictItemService.queryByDictId(\""+tableField.getDictId()+"\", 1, 1000);\r\n");
+			}
+			for (TableField tableField : dictFieldList) {
+				String fieldName = XJLCoderTools.getDomainFieldName(tableField.getFieldName());
+				sb.append("\t\t" + domainName + ".set" + StringUtils.capitalize(fieldName) + "$name(DictItemTools.getDictItemNames(" + domainName + ".get" + StringUtils.capitalize(fieldName) + "(), " + fieldName + "DictItems));\r\n");
+			}
+		}
+		if (!fkFieldList.isEmpty()){
+			for (TableField tableField : fkFieldList) {
+				
+			}
+		}
+		
+		sb.append("\t\t//处理外键\r\n");
+		
 		sb.append("\t\treturn " + domainName + ";\r\n");
 		sb.append("\t}\r\n");
 		sb.append("\r\n");
 		return sb.toString();
 	}
 	private String generateAdd(Class domainClass,String serviceName){
-		String domainName = XJLCoderTools.getDomainFieldName(domainClass.getSimpleName());
+		String domainName = StringUtils.uncapitalize(domainClass.getSimpleName());
 		StringBuffer sb = new StringBuffer();
 		sb.append("\t@ResponseBody\r\n");
 		sb.append("\t@RequestMapping(value=\"/add\",method=RequestMethod.POST,consumes = \"application/json\")\r\n");
@@ -170,7 +252,7 @@ public class ControllerCoderTools {
 		return sb.toString();
 	}
 	private String generateModify(Class domainClass,String serviceName){
-		String domainName = XJLCoderTools.getDomainFieldName(domainClass.getSimpleName());
+		String domainName = StringUtils.uncapitalize(domainClass.getSimpleName());
 		StringBuffer sb = new StringBuffer();
 		sb.append("\t@ResponseBody\r\n");
 		sb.append("\t@RequestMapping(value=\"/modify\",method=RequestMethod.POST,consumes = \"application/json\")\r\n");
@@ -184,7 +266,7 @@ public class ControllerCoderTools {
 		return sb.toString();
 	}
 	private String generateDelete(Class domainClass,String serviceName){
-		String domainName = XJLCoderTools.getDomainFieldName(domainClass.getSimpleName());
+		String domainName = StringUtils.uncapitalize(domainClass.getSimpleName());
 		StringBuffer sb = new StringBuffer();
 		sb.append("\t@ResponseBody\r\n");
 		sb.append("\t@RequestMapping(value=\"/delete\",method=RequestMethod.POST,consumes = \"application/json\")\r\n");

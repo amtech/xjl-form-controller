@@ -2,6 +2,7 @@ package com.xjl.pt.controller.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -47,8 +48,8 @@ public class PageCoderTools {
 		log.debug("domainName:" + domainName);
 		String domainClassName = domainClass.getName();
 		log.debug("domainClassName:" + domainClassName);
-		String controllerUrl = "/" +  XJLCoderTools.getDomainFieldName(domainName);
-		File pageFile = new File(pagePath+"/" + XJLCoderTools.getDomainFieldName(domainName)+".html");
+		String controllerUrl = "/" +  StringUtils.uncapitalize(domainName);
+		File pageFile = new File(pagePath+"/" + StringUtils.uncapitalize(domainName)+".html");
 		log.debug("pageFile:" + pageFile.getAbsolutePath());
 		XJLCoderTools.forceCreateFile(pageFile);
 		String jsPath = "";
@@ -113,6 +114,14 @@ public class PageCoderTools {
 				sb.append("                	            </span>\r\n");
 				sb.append("                        </div>\r\n");
 				sb.append("                    </div>\r\n");
+			} else if(TableField.FIELD_TYPE_DICT.equals(tableField.getFieldType())){
+				
+				sb.append("                    <div class=\"form-group\">\r\n");
+				sb.append("                        <label for=\"txt_" + fieldName + "\">"+ tableField.getFieldDesc() +"</label>\r\n");
+				sb.append("                        <select name=\"txt_" + fieldName + "\" data-bind=\"value:" + fieldName + "\" class=\"selectpicker show-tick form-control\" id=\"txt_" + fieldName + "\" data-live-search=\"true\">\r\n");
+				sb.append("                            <option selected>空</option>\r\n");
+				sb.append("                        </select>\r\n");
+				sb.append("                    </div>\r\n");
 			} else {
 				sb.append("                    <div class=\"form-group\">\r\n");
 				sb.append("                        <label for=\"txt_" + fieldName + "\">"+ tableField.getFieldDesc() +"</label>\r\n");
@@ -151,7 +160,7 @@ public class PageCoderTools {
 		sb.append("        <span class=\"glyphicon glyphicon-ban-circle\" aria-hidden=\"true\"></span>返回\r\n");
 		sb.append("    </button>\r\n");
 		sb.append("</div>\r\n");
-		sb.append("<table id=\"tb_" + XJLCoderTools.getDomainFieldName(domain.getSimpleName()) + "\" data-bind=\"myBootstrapTable:$root\">\r\n");
+		sb.append("<table id=\"tb_" + StringUtils.uncapitalize(domain.getSimpleName()) + "\" data-bind=\"myBootstrapTable:$root\">\r\n");
 		sb.append("    <thead>\r\n");
 		sb.append("        <tr>\r\n");
 		sb.append("            <th data-checkbox=\"true\"></th>\r\n");
@@ -162,7 +171,11 @@ public class PageCoderTools {
 			} 
 			sb.append("            <th data-field=\"");
 			 if (tableField.getFieldType().equals(TableField.FIELD_TYPE_FK)){
+				 //如果是外键，显示外键的名称
 				sb.append(XJLCoderTools.getDomainFieldName(tableField.getFieldName())+"$name");
+			 } else if (tableField.getFieldType().equals(TableField.FIELD_TYPE_DICT)){
+				 //如果是字典，显示字典的名称
+				 sb.append(XJLCoderTools.getDomainFieldName(tableField.getFieldName())+"$name");
 			} else {
 				sb.append(XJLCoderTools.getDomainFieldName(tableField.getFieldName()));
 			}
@@ -200,12 +213,17 @@ public class PageCoderTools {
 		sb.append("<script src=\"" + jsPath + "js/bootstrapcheckbox/js/bootstrap-checkbox.min.js\"></script>\r\n");
 		sb.append("<script src=\"" + jsPath + "js/xjl/js/xjl.js\"></script>\r\n");
 		sb.append("<script src=\"" + jsPath + "js/xjl/js/xjl-table.js\"></script>\r\n");
+		sb.append("<script src=\"" + jsPath + "js/xjl/js/xjl-select.js\"></script>\r\n");
 		sb.append("<script>\r\n");
-		sb.append("XJL.bindCloseWindowEvent();\r\n");
+		sb.append("/**\r\n");
+		sb.append(" * " + table.getTableDesc() + "页面\r\n");
+		sb.append(" * @author PageCoderTools " +System.getProperties().getProperty("user.name")+"\r\n");
+		sb.append(" *\r\n");
+		sb.append(" */\r\n");
 		sb.append("//初始化\r\n");
 		sb.append("$(function () {\r\n");
-		sb.append("   //1、初始化表格\r\n");
-		sb.append("    XJL.initTable(\"tb_" + XJLCoderTools.getDomainFieldName(domain.getSimpleName()) + "\",\"../rest" + controllerUrl + "\",10);\r\n");
+		sb.append("    //1、初始化表格\r\n");
+		sb.append("    XJL.initTable(\"tb_" + StringUtils.uncapitalize(domain.getSimpleName()) + "\",\"../rest" + controllerUrl + "\",10);\r\n");
 		sb.append("    //2、注册增删改事件\r\n");
 		sb.append("    XJL.initOperate2(\"../rest" + controllerUrl + "\",\"");
 		for (int i = 0; i < fieldList.size(); i++){
@@ -220,14 +238,46 @@ public class PageCoderTools {
 			}
 		}
 		sb.append("\");\r\n");
+		//添加字典下拉框
+		ArrayList<String> dictFieldList = new ArrayList<String>();
+		for (TableField tableField : fieldList) {
+			if (tableField.getFieldType().equals(TableField.FIELD_TYPE_DICT)){
+				String dictFieldName = XJLCoderTools.getDomainFieldName(tableField.getFieldName());
+				dictFieldList.add(dictFieldName);
+				sb.append("    XJL.loadSelectOption({selectId:\"txt_" + dictFieldName+ "\","
+						+ "url: \"../rest/dictItem/query/1/1000?dictId="
+						+ tableField.getDictId()+"\",valueName:\"dictItemCode\",textName:\"dictItemName\"});\r\n");
+			}
+		}
 		sb.append("});\r\n");
 		sb.append("\r\n");
+		if (!dictFieldList.isEmpty()){
+			sb.append("XJL.beforeShowAdd = function(){\r\n");
+			sb.append("    //初始化下拉框\r\n");
+			for (String dictfieldName : dictFieldList) {
+				sb.append("    $(\"#txt_"+dictfieldName+"\").selectpicker(\"val\",'');\r\n");
+			}
+			sb.append("}\r\n");
+			sb.append("XJL.beforeShowUpdate = function(oDataModel){\r\n");
+			for (String dictfieldName : dictFieldList) {
+				sb.append("    $('#txt_"+dictfieldName+"').selectpicker(\"val\",oDataModel."+dictfieldName+");\r\n");
+			}
+			
+			sb.append("}\r\n");
+			sb.append("XJL.afterHiddenModal = function(){\r\n");
+			sb.append("    //清除下拉框\r\n");
+			for (String dictfieldName : dictFieldList) {
+				sb.append("    XJL.clearSelectPicker(\"txt_"+dictfieldName+"\");\r\n");
+			}
+			sb.append("}\r\n");
+		}
+		//处理外键回调函数
 		for (TableField tableField : fieldList) {
 			if (tableField.getFieldType().equals(TableField.FIELD_TYPE_FK)){
 				Table fkTable = this.tableService.queryById(tableField.getForeignTableId());
 				String fkDomainName = XJLCoderTools.getDomainFieldName(fkTable.getTableName());
 				TableField fkTablePKField = this.getPKField(fkTable.getTableId());
-				
+				sb.append("//"+tableField.getFieldDesc()+"回调函数\r\n");
 				sb.append("function set" + XJLCoderTools.getDomainName(tableField.getFieldName()) + "("+fkDomainName+"){\r\n");
 				sb.append("	if ("+fkDomainName+"){\r\n");
 				sb.append("		$('#txt_" + XJLCoderTools.getDomainFieldName(tableField.getFieldName()) + "').val("+fkDomainName+"."+XJLCoderTools.getDomainFieldName(fkTablePKField.getFieldName())+").change();\r\n");
