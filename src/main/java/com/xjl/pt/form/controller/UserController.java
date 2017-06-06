@@ -42,51 +42,6 @@ public class UserController {
 	@Autowired
 	private SMS sms;
 	
-	
-	/**
-	 * 登录验证
-	 */
-	@ResponseBody
-	@RequestMapping(value="/loginVerify",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse doLoginVerify(@RequestBody Map<String, Object> models,HttpServletRequest request,HttpServletResponse response){
-		String loginId = String.valueOf(models.get("loginId"));
-		//首先验证登录账号
-		UserInfo userInfo = this.userInfoService.queryByCardNo(loginId);
-		XJLResponse xjlResponse = null;
-		//判断登录账号是否为身份证
-		if (null == userInfo) {
-			//判断登录账号是否为手机号
-			userInfo = this.userInfoService.queryByPhoneNo(loginId);
-			if (null == userInfo) {
-				xjlResponse = new XJLResponse();
-				xjlResponse.setErrorMsg("您输入的账号错误!");
-				xjlResponse.setSuccess(false);
-				 return xjlResponse;
-			}
-		}
-		//判断登录所在地是否与上一次一样
-		UserLog userLog = this.userLogService.queryUserLogForMax(userInfo.getUserId());
-		if (null != userLog) {
-			//String addIp = locationController.getIpAddr(request);
-			String addIp = locationController.getWebIP(SystemConstant.LOG_GETIP);
-			String address = locationController.getProvinceName(addIp);
-			//判断验证城市是否相同
-			if (null == address || !address.equals(userLog.getCity())) {
-				xjlResponse = new XJLResponse();
-				xjlResponse.setErrorMsg(SystemConstant.SIGN_CITY_VERIFY);
-				xjlResponse.setSuccess(false);
-				 return xjlResponse;
-			}
-			//判断验证ip是否相同
-//			if(!addIp.equals(userLog.getIp())){
-//				xjlResponse = new XJLResponse();
-//				xjlResponse.setErrorMsg(SystemConstant.SIGN_IP_VERIFY);
-//				xjlResponse.setSuccess(false);
-//				 return xjlResponse;
-//			}
-		}
-		return XJLResponse.successInstance();
-	}
 	/**
 	 * 登录
 	 */
@@ -115,6 +70,26 @@ public class UserController {
 				xjlResponse.setSuccess(false);
 				 return xjlResponse;
 			}else{
+				//判断登录所在地是否与上一次一样
+				UserLog userLog = this.userLogService.queryUserLogForMax(userInfo.getUserId());
+				if (null != userLog) {
+					String addIp = locationController.getWebIP(SystemConstant.LOG_GETIP);
+					String address = locationController.getProvinceName(addIp);
+					//判断验证城市是否相同
+					if (null == address || !address.equals(userLog.getCity())) {
+						xjlResponse = new XJLResponse();
+						xjlResponse.setErrorMsg(SystemConstant.SIGN_CITY_VERIFY);
+						xjlResponse.setSuccess(false);
+						 return xjlResponse;
+					}
+					//判断验证ip是否相同
+//					if(!addIp.equals(userLog.getIp())){
+//						xjlResponse = new XJLResponse();
+//						xjlResponse.setErrorMsg(SystemConstant.SIGN_IP_VERIFY);
+//						xjlResponse.setSuccess(false);
+//						 return xjlResponse;
+//					}
+				}
 				//存入session,把user存入session
 				User user = this.userService.queryById(userInfo.getUserId());
 				 request.getSession().setAttribute(SystemConstant.SESSION_USER, user);//登录成功，将用户数据放入到Session
