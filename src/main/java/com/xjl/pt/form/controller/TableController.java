@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +30,13 @@ public class TableController {
 	@ResponseBody
 	@RequestMapping(value="/query/{page}/{pageSize}",method=RequestMethod.GET,consumes = "application/json")
 	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer pageSize){
-		List<Table> list = this.tableService.query(page, pageSize);
+		String search = request.getParameter("search");
+		List<Table> list = null;
+		if (StringUtils.isEmpty(search)){
+			list = this.tableService.query(page, pageSize);
+		} else {
+			list = this.tableService.queryBySearch(search, page, pageSize);
+		}
 		for (Table table : list) {
 			table.setTableFieldCount(this.tableFieldService.queryCountByTableId(table.getTableId()));
 		}
