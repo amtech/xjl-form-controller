@@ -121,6 +121,11 @@ public class UserController {
 				 xjlResponse = new XJLResponse();
 				 xjlResponse.setSuccess(true);
 			}
+		}else{
+			xjlResponse = new XJLResponse();
+			xjlResponse.setErrorMsg("您输入的密码有误!");
+			xjlResponse.setSuccess(false);
+			 return xjlResponse;
 		}
 		return XJLResponse.successInstance();
 	}
