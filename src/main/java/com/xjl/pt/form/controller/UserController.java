@@ -1,5 +1,6 @@
 package com.xjl.pt.form.controller;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -279,7 +280,7 @@ public class UserController {
 			userinfo.setOrg(userDefault.getOrg());//预留部分，等签字确认机传来地区数据
 			userinfo.setMaster(userDefault.getMaster());//预留部分，master用于存储逻辑删除数据中间的管理，随机数
 			userinfo.setCreateUserId(userDefault.getUserId());
-			userinfo.setCancelDate(userDefault.getCancelDate());
+			userinfo.setCreateDate(Calendar.getInstance().getTime());
 			userinfo.setState(userDefault.getState());
 			userinfo.setUserId(userid);
 			userinfo.setHandCardPhotoUrl(path);
@@ -293,7 +294,7 @@ public class UserController {
 			user.setUserName("陶杰");//预留部分，刷身份证获取姓名入库
 			user.setOrg(userDefault.getOrg());
 			user.setMaster(userDefault.getMaster());
-			user.setCancelDate(userDefault.getCancelDate());
+			user.setCreateDate(Calendar.getInstance().getTime());
 			user.setCreateUserId(userDefault.getUserId());
 			user.setState(userDefault.getState());
 			this.userService._add(user);
@@ -321,8 +322,8 @@ public class UserController {
 		String cardNo = "341124199406230030";//用户身份证号码，预留功能，等签字确认机获取全部信息后补全
 		String password = coder.password(cardNo+models.get("password").toString(), models.get("password").toString());
 		userPwd.setPassword(password);
-		userPwd.setOrg("1dbcef5f-66bb-4738-8295-15445ed76d5d");
-		userPwd.setMaster("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+//		userPwd.setOrg("1dbcef5f-66bb-4738-8295-15445ed76d5d");
+//		userPwd.setMaster("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		//添加用户信息
 		User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 		XJLResponse xjlResponse = new XJLResponse();

@@ -17,6 +17,9 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import sun.misc.BASE64Decoder;
+
 import org.apache.commons.net.ftp.FTPClient;
 /**
  * 文件控制器
@@ -162,7 +165,7 @@ public class FileController {
         FTPClient ftpClient = new FTPClient();  
         ByteArrayInputStream bis = null;
         byte[] buffer = null;
-        sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();
+        BASE64Decoder decoder = new BASE64Decoder();
         // 建立FTP连接  
         try {
         		//链接ftp
