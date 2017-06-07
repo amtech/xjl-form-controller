@@ -206,8 +206,7 @@ public class UserController {
 		UserInfo  userInfo = this.userInfoService.queryByPhoneNo(phoneNo);
 		String userId = userInfo.getUserId();
 		if(null != userInfo){
-			userInfo.setUserId(UUID.randomUUID().toString());
-			this.userPwdService._resetNewId(userInfo);
+			this.userPwdService.modifyUserPwd(userInfo);
 			//添加用户信息
 			User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 			UserPwd userPwd = new UserPwd();
