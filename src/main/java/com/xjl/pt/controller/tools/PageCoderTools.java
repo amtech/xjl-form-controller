@@ -252,6 +252,13 @@ public class PageCoderTools {
 		sb.append("});\r\n");
 		sb.append("\r\n");
 		if (!dictFieldList.isEmpty()){
+			sb.append("XJL.beforeSubmit = function(oDataModel){\r\n");
+			sb.append("    //重新对字典进行赋值\r\n");
+			for (String dictfieldName : dictFieldList) {
+				sb.append("    oDataModel."+dictfieldName+" = $(\"#txt_"+dictfieldName+"\").val().toString();\r\n");
+			}
+			sb.append("}\r\n");
+			
 			sb.append("XJL.beforeShowAdd = function(){\r\n");
 			sb.append("    //初始化下拉框\r\n");
 			for (String dictfieldName : dictFieldList) {
@@ -260,6 +267,7 @@ public class PageCoderTools {
 			sb.append("}\r\n");
 			sb.append("XJL.beforeShowUpdate = function(oDataModel){\r\n");
 			for (String dictfieldName : dictFieldList) {
+				sb.append("    oDataModel."+dictfieldName+"=oDataModel."+dictfieldName+".split(\",\");\r\n");
 				sb.append("    $('#txt_"+dictfieldName+"').selectpicker(\"val\",oDataModel."+dictfieldName+");\r\n");
 			}
 			
