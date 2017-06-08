@@ -121,6 +121,19 @@ public class SxImplItemController {
 		}
 		return XJLResponse.successInstance();
 	}
-
+	@ResponseBody
+	@RequestMapping(value="/deploy/{itemId}",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse deploy(HttpServletRequest request, @PathVariable String itemId){
+		User user = this.sessionTools.getUser(request);
+		SxImplItem item = this.sxImplItemService.queryById(itemId);
+		int state = NumberUtils.toInt(item.getItemState());
+		state+=1;
+		if (state>2){
+			state=2;
+		}
+		item.setItemState("" + state);
+		this.sxImplItemService.modify(item, user);
+		return XJLResponse.successInstance();
+	}
 }
 

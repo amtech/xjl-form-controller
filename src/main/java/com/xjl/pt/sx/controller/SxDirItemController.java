@@ -91,7 +91,7 @@ public class SxDirItemController {
 		implItem.setBaseCode(dirItem.getBaseCode());
 		implItem.setAccording(dirItem.getAccording());
 		implItem.setItemName(dirItem.getItemName());
-		implItem.setItemState(dirItem.getItemState());
+		implItem.setItemState("");
 		implItem.setItemType(dirItem.getItemType());
 		this.sxImplItemService.add(implItem, user);
 		return XJLResponse.successInstance();
