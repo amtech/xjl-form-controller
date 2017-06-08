@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.xjl.notification.sms.SMS;
 import com.xjl.notification.verifyCode.VerifyCode;
 import com.xjl.pt.core.domain.User;
@@ -77,15 +75,15 @@ public class UserController {
 				//判断登录所在地是否与上一次一样
 				UserLog userLog = this.userLogService.queryUserLogForMax(userInfo.getUserId());
 				if (null != userLog) {
-					String addIp = locationController.getWebIP(SystemConstant.LOG_GETIP);
-					String address = locationController.getProvinceName(addIp);
+					//String addIp = locationController.getWebIP(SystemConstant.LOG_GETIP);
+					//String address = locationController.getProvinceName(addIp);
 					//判断验证城市是否相同
-					if (null == address  ||( null != userLog.getCity() && !address.equals(userLog.getCity()))) {
-						xjlResponse = new XJLResponse();
-						xjlResponse.setErrorMsg(SystemConstant.SIGN_CITY_VERIFY);
-						xjlResponse.setSuccess(false);
-						 return xjlResponse;
-					}
+//					if (null  != address  ||( null != userLog.getCity() && !address.equals(userLog.getCity()))) {
+//						xjlResponse = new XJLResponse();
+//						xjlResponse.setErrorMsg(SystemConstant.SIGN_CITY_VERIFY);
+//						xjlResponse.setSuccess(false);
+//						 return xjlResponse;
+//					}
 //					//判断验证ip是否相同
 //					if(!addIp.equals(userLog.getIp())){
 //						xjlResponse = new XJLResponse();
@@ -111,21 +109,68 @@ public class UserController {
 	/**
 	 * 退出登录
 	 */
-	public void loginOut(HttpServletRequest request,HttpServletResponse response){
+	@ResponseBody
+	@RequestMapping(value="/loginOut",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse loginOut(HttpServletRequest request,HttpServletResponse response){
 		HttpSession session = request.getSession(false);//防止创建Session
-		if (null == session) {}
 		session.removeAttribute(SystemConstant.SESSION_USER);
+		return XJLResponse.successInstance();
 	}
 	
 	/**
 	 * 展示用户信息
-	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value="/showUser",method=RequestMethod.POST,consumes = "application/json")
 	public User  getSessionUser(HttpServletRequest request,HttpServletResponse response){
 		User user = (User) request.getSession().getAttribute(SystemConstant.SESSION_USER);
 		return user;
+	}
+	
+	/**
+	 * 得到用户信息
+	 */
+	@ResponseBody
+	@RequestMapping(value="/queryUserInfo",method=RequestMethod.POST,consumes = "application/json")
+	public UserInfo getUserinfo(@RequestBody Map<String, Object> models){
+		String userId = String.valueOf(models.get("userId"));
+		return this.userInfoService.queryByUserId(userId);
+	}
+	
+	/**
+	 * 个人信息维护
+	 */
+	@ResponseBody
+	@RequestMapping(value="/modifyUserInfo",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse modifyUserInfo(@RequestBody Map<String, Object> models){
+		String iphoneNo = String.valueOf(models.get("iphoneNo"));
+		String username = String.valueOf(models.get("userName"));
+		String cardNo = String.valueOf(models.get("cardNo"));
+		String userId = String.valueOf(models.get("userId"));
+		UserInfo userInfo = this.userInfoService.queryByUserId(userId);
+		XJLResponse xjlResponse = null;
+		if(null != userInfo){
+			//删除
+			this.userInfoService.modifyUserInfo(userInfo);
+			//添加用户信息
+			User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+			if(!"".equals(iphoneNo)){
+				userInfo.setPhoneNo(iphoneNo);
+			}
+			if("".equals(userInfo.getCardName())){
+				userInfo.setCardName(username);
+			}
+			if("".equals(userInfo.getCardNo())){
+				userInfo.setCardNo(cardNo);
+			}
+			this.userInfoService.add(userInfo, userDefault);
+		}else{
+			xjlResponse = new XJLResponse();
+			xjlResponse.setErrorMsg("修改信息失败");
+			xjlResponse.setSuccess(false);
+			return xjlResponse;
+		}
+		return XJLResponse.successInstance();
 	}
 	/**
 	 * 执行用户添加
@@ -169,7 +214,7 @@ public class UserController {
 		 //执行用户信息插入
 		 UserInfo userInfo = new UserInfo();
 		 userInfo.setUserId(user.getUserId());
-		 userInfo.setUserName(models.get("userName").toString());
+		 userInfo.setCardName(models.get("userName").toString());
 		 userInfo.setCardNo(cardNo);
 		 userInfo.setPhoneNo(models.get("phone").toString());
 		 this.userInfoService.add(userInfo, userDefault);
@@ -179,6 +224,7 @@ public class UserController {
 	/**
 	 * 用户实名认证
 	 */
+	@SuppressWarnings("deprecation")
 	@ResponseBody
 	@RequestMapping(value="/realNameCertification",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse  realNameCertification(@RequestBody Map<String, Object> models){
@@ -251,7 +297,6 @@ public class UserController {
 	public XJLResponse  check(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> models) throws IOException{
 		String phone = String.valueOf(models.get("phoneno"));
 		String verify = String.valueOf(models.get("verify"));
-		String userid = String.valueOf(models.get("userid"));
 		boolean flag = this.verifyCode.check(phone, verify);
 		XJLResponse xjlResponse = new XJLResponse();
 		if(flag == true){
