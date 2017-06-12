@@ -6,6 +6,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.xjl.pt.core.domain.Dept;
+import com.xjl.pt.news.domain.NewsGovernmentAffairsOpenness;
+import com.xjl.pt.news.domain.NewsGovernmentAffairsOpennessCategory;
 import com.xjl.pt.sx.domain.SxDirItem;
 import com.xjl.pt.sx.domain.SxImplItem;
 @ContextConfiguration(locations = { "classpath*:/ApplicationContext-*.xml"})  
@@ -24,5 +26,10 @@ public class PageCoderToolsTest {
 	@Test
 	public void generateSxImplItem(){
 		this.tools.generatePage(SxImplItem.class, "/home/lilisheng/git/xjl-form-web/src/main/webapp/sx");
+	}
+	@Test
+	public void generateNews(){
+		this.tools.generatePage(NewsGovernmentAffairsOpennessCategory.class, "/home/lilisheng/git/xjl-form-web/src/main/webapp/news");
+		this.tools.generatePage(NewsGovernmentAffairsOpenness.class, "/home/lilisheng/git/xjl-form-web/src/main/webapp/news");
 	}
 }

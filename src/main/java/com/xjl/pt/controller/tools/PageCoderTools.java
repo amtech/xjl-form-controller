@@ -100,7 +100,7 @@ public class PageCoderTools {
 				continue;
 			}
 			if (TableField.FIELD_TYPE_FK.equals(tableField.getFieldType())){
-				Table fkTable = this.tableService.queryById(tableField.getTableId());
+				Table fkTable = this.tableService.queryById(tableField.getForeignTableId());
 				sb.append("                    <div class=\"input-group\" style=\"display: none\">\r\n");
 				sb.append("                        <label for=\"txt_" + fieldName + "\">"+ tableField.getFieldDesc() +"</label>\r\n");
 				sb.append("                        <input type=\"text\" name=\"txt_" + fieldName + "\" data-bind=\"value:" + fieldName + "\" class=\"form-control\" id=\"txt_" + fieldName + "\" placeholder=\""+ tableField.getFieldDesc() +"\">\r\n");

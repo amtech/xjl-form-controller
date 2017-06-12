@@ -7,6 +7,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.xjl.pt.core.domain.Dept;
+import com.xjl.pt.news.domain.NewsGovernmentAffairsOpenness;
+import com.xjl.pt.news.domain.NewsGovernmentAffairsOpennessCategory;
 import com.xjl.pt.sx.domain.SxDirItem;
 import com.xjl.pt.sx.domain.SxImplItem;
 import com.xjl.pt.web.controller.BaseControllerTest;
@@ -26,5 +28,10 @@ public class ControllerCoderToolsTest {
 	@Test
 	public void generateImplItem(){
 		this.tools.generateController(SxImplItem.class, "com.xjl.pt.sx");
+	}
+	@Test
+	public void generateNewsOpenness(){
+		this.tools.generateController(NewsGovernmentAffairsOpennessCategory.class, "com.xjl.news");
+		this.tools.generateController(NewsGovernmentAffairsOpenness.class, "com.xjl.news");
 	}
 }
