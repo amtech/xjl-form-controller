@@ -147,6 +147,8 @@ public class UserController {
 		String username = String.valueOf(models.get("userName"));
 		String cardNo = String.valueOf(models.get("cardNo"));
 		String userId = String.valueOf(models.get("userId"));
+		String email = String.valueOf(models.get("email"));
+		String address = String.valueOf(models.get("address"));
 		UserInfo userInfo = this.userInfoService.queryByUserId(userId);
 		XJLResponse xjlResponse = null;
 		if(null != userInfo){
@@ -163,6 +165,8 @@ public class UserController {
 			if("".equals(userInfo.getCardNo())){
 				userInfo.setCardNo(cardNo);
 			}
+			userInfo.setEmail(email);
+			userInfo.setAddress(address);
 			this.userInfoService.add(userInfo, userDefault);
 		}else{
 			xjlResponse = new XJLResponse();
