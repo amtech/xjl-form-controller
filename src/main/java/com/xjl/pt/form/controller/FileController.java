@@ -105,7 +105,7 @@ public class FileController {
 			//判断是否登录成功
 			if(ftpClient.login(SystemConstant.FTP_NAME, SystemConstant.FTP_PASSWORD)){
 				//判断路径
-				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH)){
+				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH_REALNAME)){
 						if(null != file){
 							FileInputStream fis = new FileInputStream(file);
 							ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -173,7 +173,7 @@ public class FileController {
 			//判断是否登录成功
 			if(ftpClient.login(SystemConstant.FTP_NAME, SystemConstant.FTP_PASSWORD)){
 				//判断路径
-				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH)){
+				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH_REALNAME)){
 						
 						if(base64str!=null || base64str!=""){
 							byte[] b = decoder.decodeBuffer(base64str);
@@ -213,6 +213,6 @@ public class FileController {
 				e.printStackTrace();
 			}
 		}
-        return SystemConstant.FTP_PATH+"/"+picturename;
+        return SystemConstant.FTP_PATH_REALNAME+"/"+picturename;
 	}
 }

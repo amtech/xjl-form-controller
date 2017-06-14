@@ -18,9 +18,14 @@ public class SystemConstant {
 	 */
 	public static final String FTP_IP="123.57.4.104";
 	/**
-	 * ftp目录地址
+	 * ftp目录:认证
 	 */
-	public static final String FTP_PATH="/home/ftpxjl/text";
+	public static final String FTP_PATH_REALNAME ="/home/ftpxjl/approve";
+	
+	/**
+	 * ftp目录：证照
+	 */
+	public static final String FTP_PATH_LICENSE="/home/ftpxjl/license";
 	/**
 	 * 备份目录
 	 */
