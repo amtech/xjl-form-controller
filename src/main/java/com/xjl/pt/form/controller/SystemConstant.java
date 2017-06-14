@@ -74,6 +74,12 @@ public class SystemConstant {
 	 * Session中的用户key（不可修改）
 	 */
 	public static final String SESSION_USER = "SESSION_USER";
-	
+	/**
+	 * 证照可信度A-D由高到低
+	 */
+	public static final String license_trust_A="A";
+	public static final String license_trust_B="B";
+	public static final String license_trust_C="C";
+	public static final String license_trust_D="D";
 	
 }
