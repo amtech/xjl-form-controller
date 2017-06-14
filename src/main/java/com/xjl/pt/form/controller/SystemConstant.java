@@ -20,7 +20,7 @@ public class SystemConstant {
 	/**
 	 * ftp目录地址
 	 */
-	public static final String FTP_PATH="/home/ftpxjl";
+	public static final String FTP_PATH="/home/ftpxjl/text";
 	/**
 	 * 备份目录
 	 */
