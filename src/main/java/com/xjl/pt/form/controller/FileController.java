@@ -78,7 +78,7 @@ public class FileController {
              try {
             	   item.write(saveFile);
                 uploadFtp(saveFile,SystemConstant.FTP_PATH_EDITBOX);
-                outs.write(getFtpUrl(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,SystemConstant.FTP_READPATH_EDITBOX));
+                outs.write(getFtpUrl(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,SystemConstant.FTP_READPATH_EDITBOX)+"/"+newName+extName);
              } catch (Exception e) {
                  e.printStackTrace();
              }
