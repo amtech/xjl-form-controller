@@ -26,6 +26,11 @@ public class SystemConstant {
 	 * ftp目录：证照
 	 */
 	public static final String FTP_PATH_LICENSE="/home/ftpxjl/license";
+	
+	/**
+	 * ftp富文本框目录
+	 */
+	public static final String FTP_PATH_EDITBOX="/home/ftpxjl/editbox";
 	/**
 	 * 备份目录
 	 */
