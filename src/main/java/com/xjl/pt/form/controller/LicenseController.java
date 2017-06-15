@@ -96,19 +96,20 @@ public class LicenseController {
 	                 //备份文件的路径
 	                 savePath = savePath +SystemConstant.BACKUP_FOLDER;
 	                 File file = null;
-	                 String newFile=UUID.randomUUID().toString();
+	                 String newFile=UUID.randomUUID().toString()+extName;
 	                 do { 
-	                	 	file = new File(savePath + newFile + extName);
+	                	 	file = new File(savePath + newFile);
 	                 }while (file.exists());
-	                 	File saveFile = new File(savePath + newFile + extName);
+	                 	File saveFile = new File(savePath + newFile);
 	                 	try {
 							item.write(saveFile);
-							new FileController().	uploadFtp(saveFile,SystemConstant.FTP_PATH_LICENSE);
+							new FileController().	uploadFtp(saveFile,SystemConstant.FTP_PATH_LICENCE);
 							//添加用户信息
 							User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
 							Licence licence = new Licence();
 							licence.setLicenceId(UUID.randomUUID().toString());
 							licence.setLicenceName(name);
+							licence.setLicenceFileUrl(newFile);
 							//license.setOwnerOn(ownerOn);
 							//license.setOwnerType(ownerType);
 							this.licenceService.add(licence, userDefault);
