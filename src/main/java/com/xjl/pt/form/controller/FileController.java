@@ -15,7 +15,11 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import sun.misc.BASE64Decoder;
@@ -29,7 +33,7 @@ import org.apache.commons.net.ftp.FTPClient;
 @RequestMapping("/file")
 public class FileController {
 	
-	
+	private static final Log log = LogFactory.getLog(FileController.class);
 	
 	/**
 	 * 富文本文件上传
@@ -37,64 +41,87 @@ public class FileController {
 	@SuppressWarnings({ "unchecked", "unused", "rawtypes"})
 	@RequestMapping(value="/uploadEditBox")
 	public void fileUploadEditBox(HttpServletRequest request,HttpServletResponse response){
+		uploadFTP(request, response,SystemConstant.FTP_PATH_EDITBOX);
+	}
+	private void uploadFTP(HttpServletRequest request, HttpServletResponse response,String type) {
+		List<FileItem> fileList = getFileList(request);  
+		log.debug("文件数量:" + fileList.size());
+		 //迭代器,搜索前端发送过来的文件
+		for (FileItem item : fileList) {
+    	 	//判断该表单项是否是普通类型
+         if (!item.isFormField()) {
+        	 String name = item.getName();
+        	 log.debug("name:" + name);
+             if (StringUtils.isBlank(name)) {
+                 continue;
+             }
+             File saveFile = this.getTempFile(request, name,SystemConstant.BACKUP_FOLDER);
+             log.debug("saveFile:" + saveFile.getName());
+             try {
+            	 log.debug("开始写入临时文件");
+            	item.write(saveFile);
+            	log.debug("开始上传ftp");
+                String ftpURL = uploadFtp(saveFile,type);
+                log.debug("ftp地址：" + ftpURL);
+                response.getWriter().write(ftpURL);
+             } catch (Exception e) {
+                 throw new RuntimeException(e);
+             }
+         }
+	}
+	}
+	/**
+	 * 得到文件列表
+	 */
+	private List getFileList(HttpServletRequest request) {
 		DiskFileItemFactory fac = new DiskFileItemFactory();
 		ServletFileUpload upload = new ServletFileUpload(fac);
 		upload.setHeaderEncoding("utf-8");
 		List fileList = null;
-		PrintWriter outs = null;
 		try {
 			fileList= upload.parseRequest(request);
-			outs = response.getWriter();
+			
 		} catch (FileUploadException e) {
-			e.printStackTrace();
-		}catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-		 //迭代器,搜索前端发送过来的文件
-        Iterator<FileItem> it = fileList.iterator();
-        String name = "";
-        String extName = "";
-        while (it.hasNext()) {
-    	 	FileItem item = it.next();
-    	 	//判断该表单项是否是普通类型
-         if (!item.isFormField()) {
-        	 	name = item.getName();
-             long size = item.getSize();
-             String type = item.getContentType();
-             if (name == null || name.trim().equals("")) {
-                 continue;
-             }
-             // 扩展名格式： extName就是文件的后缀,例如 .txt
-             if (name.lastIndexOf(".") >= 0) {
-                extName = name.substring(name.lastIndexOf("."));
-             }
-             String savePath = request.getSession().getServletContext().getRealPath("");
-             //备份文件的路径
-             savePath = savePath +SystemConstant.BACKUP_FOLDER;
-             String newName = UUID.randomUUID().toString();
-             // 生成文件名：
-             File saveFile = new File(savePath + newName + extName);
-             try {
-            	   item.write(saveFile);
-                uploadFtp(saveFile,SystemConstant.FTP_PATH_EDITBOX);
-                outs.write(getFtpUrl(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,SystemConstant.FTP_READPATH_EDITBOX)+"/"+newName+extName);
-             } catch (Exception e) {
-                 e.printStackTrace();
-             }
-         }
+			throw new RuntimeException(e);
+		}
+		return fileList;
 	}
+	/**
+	 * 得到临时文件
+	 * @param request
+	 * @param name
+	 * @param type
+	 * @return
+	 */
+	private File getTempFile(HttpServletRequest request,String name,String type){
+		// 扩展名格式： extName就是文件的后缀,例如 .txt
+        String extName = FilenameUtils.getExtension(name);
+        //备份文件的路径
+        String savePath = getTempFilePath(request,type);
+        String newName = UUID.randomUUID().toString();
+        // 生成文件名：
+        File saveFile = new File(savePath + newName + "."+extName);
+        return saveFile;
+	}
+	/**
+	 * 得到临时目录
+	 * @param request
+	 * @param pathType
+	 * @return
+	 */
+	private String getTempFilePath(HttpServletRequest request,String pathType){
+		String savePath = request.getSession().getServletContext().getRealPath("");
+		return savePath +pathType;
 	}
 	/**
 	 * 组装ftp路径
 	 * @param ip
 	 * @param name
 	 * @param password
-	 * @param ftpPath
+	 * @param ftpPath ftp文件的路径
 	 */
-	public String getFtpUrl(String ip,String name,String password,String ftpPath){
-		String ftpUrl="ftp://"+name+":"+password+"@"+ip+ftpPath;
-		return ftpUrl;
+	public String getFtpURL(String ip,String name,String password,String ftpPath){
+		return "ftp://"+name+":"+password+"@"+ip+ftpPath;
 	}
 	/**
 	 * 执行证照上传
@@ -102,62 +129,14 @@ public class FileController {
 	@SuppressWarnings({ "unchecked", "unused", "rawtypes"})
 	@RequestMapping(value="/uploadFile")
 	public void fileUpload(HttpServletRequest request,HttpServletResponse response){
-		DiskFileItemFactory fac = new DiskFileItemFactory();
-		ServletFileUpload upload = new ServletFileUpload(fac);
-		upload.setHeaderEncoding("utf-8");
-		List fileList = null;
-		PrintWriter outs = null;
-		try {
-			fileList= upload.parseRequest(request);
-			outs = response.getWriter();
-		} catch (FileUploadException e) {
-			e.printStackTrace();
-		}catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-		 //迭代器,搜索前端发送过来的文件
-        Iterator<FileItem> it = fileList.iterator();
-        String name = "";
-        String extName = "";
-        while (it.hasNext()) {
-        	 	FileItem item = it.next();
-        	 	//判断该表单项是否是普通类型
-             if (!item.isFormField()) {
-            	 	name = item.getName();
-                 long size = item.getSize();
-                 String type = item.getContentType();
-                 if (name == null || name.trim().equals("")) {
-                     continue;
-                 }
-                 // 扩展名格式： extName就是文件的后缀,例如 .txt
-                 if (name.lastIndexOf(".") >= 0) {
-                    extName = name.substring(name.lastIndexOf("."));
-                 }
-                 String savePath = request.getSession().getServletContext().getRealPath("");
-                 //备份文件的路径
-                 savePath = savePath +SystemConstant.BACKUP_FOLDER;
-                 // 生成文件名：
-                 String sign= request.getParameter("sign");
-                 name = this.gainNewFileName(sign,request.getParameter("cardNo"));
-             	File saveFile = new File(savePath + name + extName);
-                 try {
-                     item.write(saveFile);
-                     uploadFtp(saveFile,SystemConstant.FTP_PATH_REALNAME);
-                    String ftpUrl= getFtpUrl(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,SystemConstant.FTP_READPATH_REALNAME);
-                    ftpUrl = ftpUrl+"/"+name+extName; 
-                    outs.write(name + extName);
-                 } catch (Exception e) {
-                     e.printStackTrace();
-                 }
-             }
-		}
+		this.uploadFTP(request, response, SystemConstant.FTP_PATH_LICENCE);
 	}
 	
 	/**
 	 * 上传ftp服务器
+	 * @return ftp路径
 	 */
-	public  void  uploadFtp(File file,String ftpPath){
+	public  String  uploadFtp(File file,String ftpPath){
 		//创建ftp  
         FTPClient ftpClient = new FTPClient();  
         ByteArrayInputStream bis = null;
@@ -172,20 +151,10 @@ public class FileController {
 				if(ftpClient.changeWorkingDirectory(ftpPath)){
 						if(null != file){
 							FileInputStream fis = new FileInputStream(file);
-							ByteArrayOutputStream bos = new ByteArrayOutputStream();
-							byte[] b=new byte[1024];
-							int n;
-							while((n=fis.read(b))!=-1){
-								bos.write(b, 0, n);
-							}
-							fis.close();
-							bos.close();
-							buffer = bos.toByteArray();
-							bis = new ByteArrayInputStream(buffer);
 							ftpClient.setBufferSize(1024);
 							if(ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE)){
 								ftpClient.enterLocalPassiveMode();
-								ftpClient.storeFile(file.getName(), bis);
+								ftpClient.storeFile(file.getName(), fis);
 							}
 						}
 				}
@@ -204,6 +173,7 @@ public class FileController {
 				e.printStackTrace();
 			}
 		}
+        return getFtpURL(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,SystemConstant.FTP_READPATH_EDITBOX+"/"+file.getName());
 	}
 	/**
 	 * 生成新文件名
