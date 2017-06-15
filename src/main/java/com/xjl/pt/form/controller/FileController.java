@@ -17,14 +17,13 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import sun.misc.BASE64Decoder;
-
 import org.apache.commons.net.ftp.FTPClient;
 /**
  * 文件控制器
  * @author guan.zheyuan
  */
+@SuppressWarnings("restriction")
 @Controller
 @RequestMapping("/file")
 public class FileController {
@@ -81,7 +80,7 @@ public class FileController {
                  	File saveFile = new File(savePath + name + extName);
                  try {
                      item.write(saveFile);
-                     uploadFtp(saveFile);
+                     uploadFtp(saveFile,SystemConstant.FTP_PATH_REALNAME);
                      outs.write(name + extName);
                  } catch (Exception e) {
                      e.printStackTrace();
@@ -93,7 +92,7 @@ public class FileController {
 	/**
 	 * 上传ftp服务器
 	 */
-	public  void  uploadFtp(File file){
+	public  void  uploadFtp(File file,String ftpPath){
 		//创建ftp  
         FTPClient ftpClient = new FTPClient();  
         ByteArrayInputStream bis = null;
@@ -105,7 +104,7 @@ public class FileController {
 			//判断是否登录成功
 			if(ftpClient.login(SystemConstant.FTP_NAME, SystemConstant.FTP_PASSWORD)){
 				//判断路径
-				if(ftpClient.changeWorkingDirectory(SystemConstant.FTP_PATH_REALNAME)){
+				if(ftpClient.changeWorkingDirectory(ftpPath)){
 						if(null != file){
 							FileInputStream fis = new FileInputStream(file);
 							ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -160,6 +159,7 @@ public class FileController {
 	/**
 	 * base64码直接上传ftp服务器
 	 */
+	@SuppressWarnings("restriction")
 	public static String  uploadFtp(String base64str,String picturename){
 		//创建ftp  
         FTPClient ftpClient = new FTPClient();  
