@@ -9,7 +9,6 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
@@ -73,22 +72,29 @@ public class FileController {
              String savePath = request.getSession().getServletContext().getRealPath("");
              //备份文件的路径
              savePath = savePath +SystemConstant.BACKUP_FOLDER;
-             File file = null;
              String newName = UUID.randomUUID().toString();
-             do { 
-                 // 生成文件名：
-                 file = new File(savePath + newName + extName);
-             } while (file.exists());
-             	File saveFile = new File(savePath + newName + extName);
+             // 生成文件名：
+             File saveFile = new File(savePath + newName + extName);
              try {
-                 item.write(saveFile);
-                 uploadFtp(saveFile,SystemConstant.FTP_PATH_EDITBOX);
-                 outs.write(newName + extName);
+            	   item.write(saveFile);
+                uploadFtp(saveFile,SystemConstant.FTP_PATH_EDITBOX);
+                outs.write(getFtpUrl(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,SystemConstant.FTP_READPATH_EDITBOX));
              } catch (Exception e) {
                  e.printStackTrace();
              }
          }
 	}
+	}
+	/**
+	 * 组装ftp路径
+	 * @param ip
+	 * @param name
+	 * @param password
+	 * @param ftpPath
+	 */
+	public String getFtpUrl(String ip,String name,String password,String ftpPath){
+		String ftpUrl="ftp://"+name+":"+password+"@"+ip+ftpPath;
+		return ftpUrl;
 	}
 	/**
 	 * 执行证照上传
@@ -131,18 +137,16 @@ public class FileController {
                  String savePath = request.getSession().getServletContext().getRealPath("");
                  //备份文件的路径
                  savePath = savePath +SystemConstant.BACKUP_FOLDER;
-                 File file = null;
-                 do { 
-                     // 生成文件名：
-                     String sign= request.getParameter("sign");
-                     name = this.gainNewFileName(sign,request.getParameter("cardNo"));
-                     file = new File(savePath + name + extName);
-                 } while (file.exists());
-                 	File saveFile = new File(savePath + name + extName);
+                 // 生成文件名：
+                 String sign= request.getParameter("sign");
+                 name = this.gainNewFileName(sign,request.getParameter("cardNo"));
+             	File saveFile = new File(savePath + name + extName);
                  try {
                      item.write(saveFile);
                      uploadFtp(saveFile,SystemConstant.FTP_PATH_REALNAME);
-                     outs.write(name + extName);
+                    String ftpUrl= getFtpUrl(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,SystemConstant.FTP_READPATH_REALNAME);
+                    ftpUrl = ftpUrl+"/"+name+extName; 
+                    outs.write(name + extName);
                  } catch (Exception e) {
                      e.printStackTrace();
                  }
@@ -220,7 +224,6 @@ public class FileController {
 	/**
 	 * base64码直接上传ftp服务器
 	 */
-	@SuppressWarnings("restriction")
 	public static String  uploadFtp(String base64str,String picturename){
 		//创建ftp  
         FTPClient ftpClient = new FTPClient();  

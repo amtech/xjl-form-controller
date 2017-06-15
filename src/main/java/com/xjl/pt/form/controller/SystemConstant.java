@@ -21,16 +21,28 @@ public class SystemConstant {
 	 * ftp目录:认证
 	 */
 	public static final String FTP_PATH_REALNAME ="/home/ftpxjl/approve";
-	
+	/**
+	 * ftp:读取目录
+	 */
+	public static final String FTP_READPATH_REALNAME="/approve";
 	/**
 	 * ftp目录：证照
 	 */
-	public static final String FTP_PATH_LICENSE="/home/ftpxjl/license";
+	public static final String FTP_PATH_LICENCE="/home/ftpxjl/licence";
+	/**
+	 * ftp:读取目录
+	 */
+	public static final String FTP_READPATH_LICENCE="/licence";
 	
+	 
 	/**
 	 * ftp富文本框目录
 	 */
 	public static final String FTP_PATH_EDITBOX="/home/ftpxjl/editbox";
+	/**
+	 * ftp:读取目录
+	 */
+	public static final String FTP_READPATH_EDITBOX="/editbox";
 	/**
 	 * 备份目录
 	 */
