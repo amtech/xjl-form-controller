@@ -18,9 +18,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.xjl.pt.core.domain.License;
+
+import com.xjl.pt.core.domain.Licence;
 import com.xjl.pt.core.domain.User;
-import com.xjl.pt.core.service.LicenseService;
+import com.xjl.pt.core.service.LicenceService;
 import com.xjl.pt.core.service.UserService;
 
 /**
@@ -32,7 +33,7 @@ import com.xjl.pt.core.service.UserService;
 public class LicenseController {
 	
 	@Autowired
-	private LicenseService licenseService;
+	private LicenceService licenceService;
 	@Autowired
 	private UserService userService;
 	
@@ -43,10 +44,10 @@ public class LicenseController {
 	@RequestMapping(value="/query/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
 	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
 		String search = StringUtils.trimToNull(request.getParameter("search"));
-		List<License> list = licenseService.query(search, page, rows);
-		for (License license : list) {
-			if(null != license && null != license.getLicenseId()){
-				license.setLicenseItemCount(this.licenseService.countByLicense(license.getLicenseId()));
+		List<Licence> list = licenceService.query(search, page, rows);
+		for (Licence license : list) {
+			if(null != license && null != license.getLicenceId()){
+				license.setLicenceItemCount(this.licenceService.countByLicense(license.getLicenceId()));
 			}
 		}
 		return BootstrapGridTable.getInstance(list);
@@ -105,12 +106,12 @@ public class LicenseController {
 							new FileController().	uploadFtp(saveFile,SystemConstant.FTP_PATH_LICENSE);
 							//添加用户信息
 							User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
-							License license = new License();
-							license.setLicenseId(UUID.randomUUID().toString());
-							license.setLicenseName(name);
+							Licence licence = new Licence();
+							licence.setLicenceId(UUID.randomUUID().toString());
+							licence.setLicenceName(name);
 							//license.setOwnerOn(ownerOn);
 							//license.setOwnerType(ownerType);
-							this.licenseService.add(license, userDefault);
+							this.licenceService.add(licence, userDefault);
 	                 	} catch (Exception e) {
 							e.printStackTrace();
 						}
