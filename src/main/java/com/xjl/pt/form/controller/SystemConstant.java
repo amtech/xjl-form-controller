@@ -88,6 +88,10 @@ public class SystemConstant {
 	 */
 	public static final String FOMATDATE_MINUTE="yyyy-MM-dd-HH-mm";
 	/**
+	 * 年月日
+	 */
+	public static final String FOMATDATE_DAY="yyyy-mm-dd";
+	/**
 	 * Session中的用户key（不可修改）
 	 */
 	public static final String SESSION_USER = "SESSION_USER";
