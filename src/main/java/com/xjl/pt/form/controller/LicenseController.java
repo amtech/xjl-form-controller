@@ -62,7 +62,7 @@ public class LicenseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
-	public void add(@RequestBody Map<String, Object> models,HttpServletRequest request) throws ParseException{
+	public XJLResponse add(@RequestBody Map<String, Object> models,HttpServletRequest request) throws ParseException{
 		String licenceName= String.valueOf(models.get("licencename"));
 		String startDate = String.valueOf(models.get("startDate"));
 		String endDate = String.valueOf(models.get("endDate"));
@@ -71,8 +71,10 @@ public class LicenseController {
 		log.debug("完成参数组装");
 		SimpleDateFormat format = new SimpleDateFormat(SystemConstant.FOMATDATE_DAY);
 		//添加用户信息
-		User user = (User) request.getSession().getAttribute(SystemConstant.SESSION_USER);
-		UserInfo userInfo = this.userInfoService.queryByUserId(user.getUserId());
+		//User user = (User) request.getSession().getAttribute(SystemConstant.SESSION_USER);
+		User userDefault = this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
+		UserInfo userInfo = this.userInfoService.queryByUserId(userDefault.getUserId());
+		log.debug("得到用户信息："+userInfo);
 		Licence licence = new Licence();
 		licence.setLicenceId(UUID.randomUUID().toString());
 		licence.setLicenceName(StringUtils.isBlank(licenceName)?fileName:licenceName);
@@ -80,9 +82,11 @@ public class LicenseController {
 		licence.setIssuingDate(format.parse(startDate));
 		licence.setExpirationDate(format.parse(endDate));
 		licence.setLicenceFileUrl(ftpURL);
-		licence.setOwnerOn(userInfo.getCardNo());
-		licence.setOwnerType(userInfo.getUserType());
-		this.licenceService.add(licence,null);
+		licence.setOwnerOn(StringUtils.isBlank(userInfo.getCardNo())?"":userInfo.getCardNo());
+		licence.setOwnerType(StringUtils.isBlank(userInfo.getUserType())?"":userInfo.getUserType());
+		log.debug("执行证照上传");
+		this.licenceService.add(licence,userDefault);
+		return XJLResponse.successInstance();
 	}
 	/**
 	 * 上传
