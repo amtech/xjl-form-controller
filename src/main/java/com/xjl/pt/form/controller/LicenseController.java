@@ -16,12 +16,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.xjl.pt.core.domain.DictItem;
 import com.xjl.pt.core.domain.Licence;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.core.domain.UserInfo;
+import com.xjl.pt.core.service.DictItemService;
 import com.xjl.pt.core.service.LicenceService;
 import com.xjl.pt.core.service.UserInfoService;
 import com.xjl.pt.core.service.UserService;
+import com.xjl.pt.core.tools.DictItemTools;
 /**
  * 证照控制类
  * @author guan.zheyuan
@@ -36,6 +40,8 @@ public class LicenseController {
 	private UserService userService;
 	@Autowired
 	private UserInfoService userInfoService;
+	@Autowired
+	private DictItemService dictItemService;
 	private static final Log log = LogFactory.getLog(LicenseController.class);
 
 	/**
@@ -46,10 +52,16 @@ public class LicenseController {
 	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
 		String search = StringUtils.trimToNull(request.getParameter("search"));
 		List<Licence> list = licenceService.query(search, page, rows);
+		List<DictItem> itemTypeLicenceItems = this.dictItemService.queryByDictId("9b48ca78-6366-4598-8509-64bf26ca3832", 1, 1000);
+		List<DictItem> itemTypeSourceItems = this.dictItemService.queryByDictId("8c438833-0803-41eb-abcb-63d06902cf66", 1, 1000);
 		for (Licence licence : list) {
 			if(null != licence && null != licence.getLicenceId()){
 				licence.setLicenceItemCount(this.licenceService.countByLicense(licence.getLicenceId()));
 			}
+			//解析证照状态
+			licence.setLicenceStatus$name(DictItemTools.getDictItemNames(licence.getLicenceStatus(),itemTypeLicenceItems));
+			//解析证照数据来源
+			licence.setLicenceSourceType$name(DictItemTools.getDictItemNames(licence.getLicenceSourceType(),itemTypeSourceItems));
 		}
 		return BootstrapGridTable.getInstance(list);
 	}
@@ -85,8 +97,8 @@ public class LicenseController {
 		licence.setOwnerOn(StringUtils.isBlank(userInfo.getCardNo())?"":userInfo.getCardNo());
 		licence.setOwnerType(StringUtils.isBlank(userInfo.getUserType())?"":userInfo.getUserType());
 		licence.setLicenceTrustLevel("D");
-		licence.setLicenceStatus("1");
-		licence.setLicenceSourceType("2");
+		licence.setLicenceStatus("01");
+		licence.setLicenceSourceType("02");
 		log.debug("执行证照上传");
 		this.licenceService.add(licence,userDefault);
 		return XJLResponse.successInstance();
@@ -97,6 +109,6 @@ public class LicenseController {
 	@ResponseBody
 	@RequestMapping(value="/upload")
 	public Map<String, Object> uploadLicence(HttpServletRequest request,HttpServletResponse response){
-		return new FileController().uploadFTPForController(request, response, SystemConstant.FTP_PATH_LICENCE);
+		return new FileController().uploadFTPForController(request, response, SystemConstant.FTP_PATH_LICENCE,SystemConstant.FTP_READPATH_LICENCE);
 	}
 }

@@ -40,14 +40,14 @@ public class FileController {
 	 */
 	@RequestMapping(value="/uploadEditBox")
 	public void fileUploadEditBox(HttpServletRequest request,HttpServletResponse response){
-		uploadFTP(request, response,SystemConstant.FTP_PATH_EDITBOX);
+		uploadFTP(request, response,SystemConstant.FTP_PATH_EDITBOX,SystemConstant.FTP_READPATH_EDITBOX);
 	}
 	/**
 	 * 执行证照上传
 	 */
 	@RequestMapping(value="/uploadFile")
 	public void fileUpload(HttpServletRequest request,HttpServletResponse response){
-		this.uploadFTP(request, response, SystemConstant.FTP_PATH_LICENCE);
+		this.uploadFTP(request, response, SystemConstant.FTP_PATH_LICENCE,SystemConstant.FTP_READPATH_LICENCE);
 	}
 	 
 	/**
@@ -57,7 +57,7 @@ public class FileController {
 	 * @param type
 	 * @return
 	 */
-	public Map<String,Object> uploadFTPForController(HttpServletRequest request,HttpServletResponse response,String type){
+	public Map<String,Object> uploadFTPForController(HttpServletRequest request,HttpServletResponse response,String uploadtype,String readtype){
 		 Map<String, Object> tempMap = null;
 		List<FileItem> fileList = getFileList(request);  
 		log.debug("文件数量:" + fileList.size());
@@ -76,7 +76,7 @@ public class FileController {
             	 	log.debug("开始写入临时文件");
 	            	item.write(saveFile);
 	            	log.debug("开始上传ftp");
-	            String ftpURL = uploadFtp(saveFile,type);
+	            String ftpURL = uploadFtp(saveFile,uploadtype,readtype);
 	            log.debug("ftp地址：" + ftpURL);
 	            tempMap = new HashMap<>();
 	            tempMap.put("fileName", saveFile.getName());
@@ -95,7 +95,7 @@ public class FileController {
 	 * @param type
 	 */
 	@SuppressWarnings("unchecked")
-	public void uploadFTP(HttpServletRequest request, HttpServletResponse response,String type) {
+	public void uploadFTP(HttpServletRequest request, HttpServletResponse response,String uploadtype,String readtype) {
 		List<FileItem> fileList = getFileList(request);  
 		log.debug("文件数量:" + fileList.size());
 		 //迭代器,搜索前端发送过来的文件
@@ -113,7 +113,7 @@ public class FileController {
             	 log.debug("开始写入临时文件");
             	item.write(saveFile);
             	log.debug("开始上传ftp");
-                String ftpURL = uploadFtp(saveFile,type);
+                String ftpURL = uploadFtp(saveFile,uploadtype,readtype);
                 log.debug("ftp地址：" + ftpURL);
                 response.getWriter().write(ftpURL);
              } catch (Exception e) {
@@ -185,7 +185,7 @@ public class FileController {
 	 * 上传ftp服务器
 	 * @return ftp路径
 	 */
-	public  String  uploadFtp(File file,String ftpPath){
+	public  String  uploadFtp(File file,String ftpPath,String type){
 		//创建ftp  
         FTPClient ftpClient = new FTPClient();  
         log.debug("创建 ftp："+ftpClient);
@@ -224,7 +224,7 @@ public class FileController {
 				e.printStackTrace();
 			}
 		}
-        return getFtpURL(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,SystemConstant.FTP_READPATH_EDITBOX+"/"+file.getName());
+        return getFtpURL(SystemConstant.FTP_IP,SystemConstant.FTP_NAME,SystemConstant.FTP_PASSWORD,type+"/"+file.getName());
 	}
 	/**
 	 * 生成新文件名
