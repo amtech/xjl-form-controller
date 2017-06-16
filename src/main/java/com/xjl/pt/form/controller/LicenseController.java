@@ -84,6 +84,9 @@ public class LicenseController {
 		licence.setLicenceFileUrl(ftpURL);
 		licence.setOwnerOn(StringUtils.isBlank(userInfo.getCardNo())?"":userInfo.getCardNo());
 		licence.setOwnerType(StringUtils.isBlank(userInfo.getUserType())?"":userInfo.getUserType());
+		licence.setLicenceTrustLevel("D");
+		licence.setLicenceStatus("1");
+		licence.setLicenceSourceType("2");
 		log.debug("执行证照上传");
 		this.licenceService.add(licence,userDefault);
 		return XJLResponse.successInstance();
