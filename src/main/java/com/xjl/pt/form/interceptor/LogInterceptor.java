@@ -61,19 +61,15 @@ public class LogInterceptor implements HandlerInterceptor{
 		//异步调用
 		new Thread(){
             public void run() {
-            		 String city ="";
-                	 String  userId ="";
-                	 String addIp ="";
+        		 String city ="";
+            	 String  userId ="";
+            	 String addIp ="";
            		 String userName = "";
            		 log.debug("url:" + url);
            		 log.debug("addIp:" + addIp);
            		 //通过ip地址定位城市
-				try {
-					addIp = locationController.getWebIP(SystemConstant.LOG_GETIP);
-					city = new locationController().getAddresses(addIp,"utf-8");
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				}
+           		 addIp = locationController.getWebIP(SystemConstant.LOG_GETIP);
+           		 //隐藏定位城市，重新设置定时任务每晚执行
            		 log.debug("city:" + city);
            		 //得到用户信息，如果未登录访问则暂时不存用户信息
            		 if (null != user) {
