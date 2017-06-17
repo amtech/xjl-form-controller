@@ -202,9 +202,9 @@ public class UserController {
 			xjlResponse.setSuccess(false);
 			return xjlResponse;
 		}
-		//添加用户信息
-		User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
-		//执行用户插入
+		 //添加用户信息
+		 User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+		 //执行用户插入
 		 User user = new User();
 		 user.setUserName(models.get("userName").toString());
 		 this.userService.add(user,userDefault);
@@ -221,6 +221,7 @@ public class UserController {
 		 userInfo.setCardName(models.get("userName").toString());
 		 userInfo.setCardNo(cardNo);
 		 userInfo.setPhoneNo(models.get("phone").toString());
+		 userInfo.setUserType("1");
 		 this.userInfoService.add(userInfo, userDefault);
 		 return XJLResponse.successInstance();
 	} 
