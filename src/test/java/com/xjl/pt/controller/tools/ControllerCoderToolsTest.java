@@ -7,6 +7,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.xjl.pt.core.domain.Dept;
+import com.xjl.pt.form.domain.Form;
 import com.xjl.pt.news.domain.NewsGovernmentAffairsOpenness;
 import com.xjl.pt.news.domain.NewsGovernmentAffairsOpennessCategory;
 import com.xjl.pt.sx.domain.SxDirItem;
@@ -33,5 +34,9 @@ public class ControllerCoderToolsTest {
 	public void generateNewsOpenness(){
 		this.tools.generateController(NewsGovernmentAffairsOpennessCategory.class, "com.xjl.news");
 		this.tools.generateController(NewsGovernmentAffairsOpenness.class, "com.xjl.news");
+	}
+	@Test
+	public void generateForm(){
+		this.tools.generateController(Form.class, "com.xjl.pt.form");
 	}
 }

@@ -6,6 +6,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.xjl.pt.core.domain.Dept;
+import com.xjl.pt.form.domain.Form;
 import com.xjl.pt.news.domain.NewsGovernmentAffairsOpenness;
 import com.xjl.pt.news.domain.NewsGovernmentAffairsOpennessCategory;
 import com.xjl.pt.sx.domain.SxDirItem;
@@ -31,5 +32,9 @@ public class PageCoderToolsTest {
 	public void generateNews(){
 		this.tools.generatePage(NewsGovernmentAffairsOpennessCategory.class, "/home/lilisheng/git/xjl-form-web/src/main/webapp/news");
 		this.tools.generatePage(NewsGovernmentAffairsOpenness.class, "/home/lilisheng/git/xjl-form-web/src/main/webapp/news");
+	}
+	@Test
+	public void generateForm(){
+		this.tools.generatePage(Form.class, "/home/lilisheng/git/xjl-form-web/src/main/webapp/form");
 	}
 }
