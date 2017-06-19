@@ -1,6 +1,8 @@
 package com.xjl.pt.form.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,10 +22,14 @@ import com.xjl.pt.core.domain.DictItem;
 import com.xjl.pt.core.domain.Licence;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.core.domain.UserInfo;
+import com.xjl.pt.core.domain.ZzCatalog;
+import com.xjl.pt.core.domain.ZzCatalogLicence;
 import com.xjl.pt.core.service.DictItemService;
 import com.xjl.pt.core.service.LicenceService;
 import com.xjl.pt.core.service.UserInfoService;
 import com.xjl.pt.core.service.UserService;
+import com.xjl.pt.core.service.ZzCatalogLicenceService;
+import com.xjl.pt.core.service.ZzCatalogService;
 import com.xjl.pt.core.tools.DictItemTools;
 /**
  * 证照控制类
@@ -41,6 +47,10 @@ public class LicenseController {
 	private UserInfoService userInfoService;
 	@Autowired
 	private DictItemService dictItemService;
+	@Autowired
+	private ZzCatalogService zzCatalogService;
+	@Autowired
+	private ZzCatalogLicenceService zzCatalogLicenceService;
 	private static final Log log = LogFactory.getLog(LicenseController.class);
 
 	/**
@@ -164,4 +174,46 @@ public class LicenseController {
 	public Map<String, Object> uploadLicence(HttpServletRequest request,HttpServletResponse response){
 		return new FileController().uploadFTPForController(request, response, SystemConstant.FTP_PATH_LICENCE,SystemConstant.FTP_READPATH_LICENCE);
 	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/showZZcatalog", method = RequestMethod.POST)
+	public Map<String, List<String>> showzzcatalog(HttpServletRequest request,HttpServletResponse reponse){
+//		String userid= (String) request.getSession().getAttribute(SystemConstant.SESSION_USER);
+//		UserInfo userInfo=this.userInfoService.queryByUserId(userid);
+//		List<Licence> list=licenceService.queryUrlByOwnid(userInfo.getCardNo());
+		String userid="73f94e44-bb52-4041-8a18-f0b193a970ea";
+		List<Licence> list=licenceService.queryUrlByOwnid("320423199102108613");
+		Map<String, List<String>> model=new HashMap<String, List<String>>();
+		List<String> alist=new ArrayList<String>();//用于存放全部证照的id
+		List<String> Urllist=new ArrayList<String>();//用于存放证照地址
+		List<String> CataNamelist=new ArrayList<String>();//用于存放目录名称的集合
+		List<String> CataIdlist=new ArrayList<String>();//用于存放目录id的集合
+		//List<String> blist=new ArrayList<String>();//用于存放证照目录的catalog_id
+		for(int i=0;i<list.size();i++){//此处4位list.size()，等测试数据录入后再完善
+			alist.add(list.get(i).getLicenceId());
+		}
+		List<ZzCatalog> zzCatalogList=this.zzCatalogService.queryByUserId(userid);
+		for(int i=0;i<zzCatalogList.size();i++){
+			CataNamelist.add(zzCatalogList.get(i).getCatalogName());
+			CataIdlist.add(zzCatalogList.get(i).getCatalogId());
+		}
+		List<String> licenceOfCata =new ArrayList<String>();//在目录下的证照集合
+		for(int i=0;i<CataIdlist.size();i++){
+			List<ZzCatalogLicence>  l=this.zzCatalogLicenceService.queryByCatalogId(CataIdlist.get(i));//根据每个目录id获取该目录下的证照
+			for(int j=0;j<l.size();j++){
+				licenceOfCata.add(l.get(i).getLicenceId());//遍历插入集合licenceOfCata所有的包含在目录中的证照id
+			}
+		}
+		alist.removeAll(licenceOfCata);//取出所有证照和目录下证照重合的部分,剩下的是单独呈现的证照id
+		for(int i=0;i<alist.size();i++){
+			Licence licence=this.licenceService.queryUrlByLicenceId(alist.get(i));
+			Urllist.add(licence.getLicenceFileUrl());
+		}
+		model.put("licence", Urllist);
+		model.put("catalogid",CataIdlist);
+		model.put("catalogname",CataNamelist);
+		return model;
+	}
+	
+	
 }
