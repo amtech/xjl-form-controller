@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.xjl.pt.core.domain.DictItem;
 import com.xjl.pt.core.domain.Licence;
 import com.xjl.pt.core.domain.User;
@@ -54,6 +53,7 @@ public class LicenseController {
 		List<Licence> list = licenceService.query(search, page, rows);
 		List<DictItem> itemTypeLicenceItems = this.dictItemService.queryByDictId("9b48ca78-6366-4598-8509-64bf26ca3832", 1, 1000);
 		List<DictItem> itemTypeSourceItems = this.dictItemService.queryByDictId("8c438833-0803-41eb-abcb-63d06902cf66", 1, 1000);
+		SimpleDateFormat format = new SimpleDateFormat(SystemConstant.FOMATDATE_DAY);
 		for (Licence licence : list) {
 			if(null != licence && null != licence.getLicenceId()){
 				licence.setLicenceItemCount(this.licenceService.countByLicense(licence.getLicenceId()));
@@ -62,8 +62,20 @@ public class LicenseController {
 			licence.setLicenceStatus$name(DictItemTools.getDictItemNames(licence.getLicenceStatus(),itemTypeLicenceItems));
 			//解析证照数据来源
 			licence.setLicenceSourceType$name(DictItemTools.getDictItemNames(licence.getLicenceSourceType(),itemTypeSourceItems));
+			//解析时间
+			licence.setIssuingDateStr(format.format(licence.getIssuingDate()));
+			licence.setExirationDateStr(format.format(licence.getExpirationDate()));
 		}
 		return BootstrapGridTable.getInstance(list);
+	}
+	
+	/**
+	 * 通过编号得到证照信息
+	 */
+	@ResponseBody
+	@RequestMapping(value="/query/{id}",method=RequestMethod.GET,consumes = "application/json")
+	public Licence queryById(HttpServletRequest request, @PathVariable String licenceId){
+		return this.licenceService.queryByLicenceId(licenceId);
 	}
 	
 	/**
@@ -101,6 +113,47 @@ public class LicenseController {
 		licence.setLicenceSourceType("02");
 		log.debug("执行证照上传");
 		this.licenceService.add(licence,userDefault);
+		return XJLResponse.successInstance();
+	}
+	/**
+	 * 执行证照修改
+	 * @param licence
+	 * @param request
+	 * @return
+	 * @throws ParseException 
+	 */
+	@ResponseBody
+	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse modify(@RequestBody Map<String, Object> models,HttpServletRequest request) throws ParseException{
+		String licenceId = String.valueOf(models.get("licenceId"));
+		String licenceName = String.valueOf(models.get("licencename"));
+		String startDate = String.valueOf(models.get("startDate"));
+		String endDate = String.valueOf(models.get("endDate"));
+		String ftpURL = String.valueOf(models.get("ftpURL"));
+		String fileName = String.valueOf(models.get("fileName"));
+		log.debug("完成参数组装");
+		SimpleDateFormat format = new SimpleDateFormat(SystemConstant.FOMATDATE_DAY);
+		Licence licence = new Licence();
+		licence.setLicenceId(licenceId);
+		licence.setLicenceName(StringUtils.isBlank(licenceName)?fileName:licenceName);
+		licence.setLicenceFileUrl(ftpURL == ""?this.licenceService.queryByLicenceId(licenceId).getLicenceFileUrl():ftpURL);
+		licence.setIssuingDate(format.parse(startDate));
+		licence.setExpirationDate(format.parse(endDate));
+		this.licenceService._modify(licence);
+		return XJLResponse.successInstance();
+	}
+	
+	/**
+	 * 删除证照信息
+	 */
+	@ResponseBody
+	@RequestMapping(value="/delete",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse Delete(@RequestBody Map<String, Object> models){
+		String licenceId = String.valueOf(models.get("licenceId"));
+		Licence licence = new Licence();
+		licence.setLicenceId(licenceId);
+		User userDefault = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
+		this.licenceService.delete(licence, userDefault);
 		return XJLResponse.successInstance();
 	}
 	/**
