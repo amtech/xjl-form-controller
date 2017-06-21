@@ -105,7 +105,7 @@ public class CdCreditItemController {
 			if(null != cdcreditItem){
 				//得到信用总分计算目前得分
 				cdit = this.cdCreditService.queryById(cdCreditItem.getCreditId());
-				if(null != cdit){
+				if(null != cdit){ 
 					cdit.setCreditEntityScore(cdit.getCreditEntityScore() + cdcreditItem.getCreditItemScore());
 					this.cdCreditService._modify(cdit);
 				}
