@@ -214,24 +214,26 @@ public class ControllerCoderTools {
 				fkFieldList.add(tableField);
 			}
 		}
-		sb.append("\t\t//处理字典\r\n");
+		sb.append("\t\tif (" + domainName + " != null){\r\n");
+		sb.append("\t\t\t//处理字典\r\n");
 		if (!dictFieldList.isEmpty()){
 			for (TableField tableField : dictFieldList) {
 				String fieldName = XJLCoderTools.getDomainFieldName(tableField.getFieldName());
-				sb.append("\t\tList<DictItem> " + fieldName + "DictItems = this.dictItemService.queryByDictId(\""+tableField.getDictId()+"\", 1, 1000);\r\n");
+				sb.append("\t\t\tList<DictItem> " + fieldName + "DictItems = this.dictItemService.queryByDictId(\""+tableField.getDictId()+"\", 1, 1000);\r\n");
 			}
 			for (TableField tableField : dictFieldList) {
 				String fieldName = XJLCoderTools.getDomainFieldName(tableField.getFieldName());
-				sb.append("\t\t" + domainName + ".set" + StringUtils.capitalize(fieldName) + "$name(DictItemTools.getDictItemNames(" + domainName + ".get" + StringUtils.capitalize(fieldName) + "(), " + fieldName + "DictItems));\r\n");
+				sb.append("\t\t\t" + domainName + ".set" + StringUtils.capitalize(fieldName) + "$name(DictItemTools.getDictItemNames(" + domainName + ".get" + StringUtils.capitalize(fieldName) + "(), " + fieldName + "DictItems));\r\n");
 			}
 		}
+		sb.append("\t\t\t//处理外键\r\n");
 		if (!fkFieldList.isEmpty()){
 			for (TableField tableField : fkFieldList) {
 				
 			}
 		}
+		sb.append("\t\t}\r\n");
 		
-		sb.append("\t\t//处理外键\r\n");
 		
 		sb.append("\t\treturn " + domainName + ";\r\n");
 		sb.append("\t}\r\n");

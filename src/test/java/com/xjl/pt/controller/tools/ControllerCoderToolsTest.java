@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.xjl.cdc.cloud.domain.CdcTerminal;
 import com.xjl.pt.core.domain.Dept;
 import com.xjl.pt.form.domain.Form;
 import com.xjl.pt.news.domain.NewsGovernmentAffairsOpenness;
@@ -38,5 +39,9 @@ public class ControllerCoderToolsTest {
 	@Test
 	public void generateForm(){
 		this.tools.generateController(Form.class, "com.xjl.pt.form");
+	}
+	@Test
+	public void generateCDCTerminal(){
+		this.tools.generateController(CdcTerminal.class, "com.xjl.cdc.cloud");
 	}
 }
