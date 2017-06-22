@@ -95,14 +95,10 @@ public class CatalogController {
 		zzCatalog.setCatalogId(catalogId);
 		zzCatalog.setCatalogName(catalogName);
 		zzCatalog.setUserId("73f94e44-bb52-4041-8a18-f0b193a970ea");//预留功能，从session中获取userid
-		try{
-			log.debug("新建证照目录:"+catalogName);
-			this.zzCatalogService.add(zzCatalog,userDefault);
-			model.put("catalogId", catalogId);
-			model.put("catalogName", catalogName);
-		}catch(RuntimeException e){
-			e.printStackTrace();
-		}
+		log.debug("新建证照目录:"+catalogName);
+		this.zzCatalogService.add(zzCatalog,userDefault);
+		model.put("catalogId", catalogId);
+		model.put("catalogName", catalogName);
 		return model;
 		
 	}
@@ -119,16 +115,10 @@ public class CatalogController {
 		zzCatalog.setCatalogId(catalogId);
 		zzCatalog.setCatalogName(newName);
 		zzCatalog.setUserId("73f94e44-bb52-4041-8a18-f0b193a970ea");
-		try{
-			log.debug("目录名称修改");
-			this.zzCatalogService.modifyCatalogName(zzCatalog);
-			xjlResponse.setSuccess(true);
-			xjlResponse.setShowMsg("目录名称修改成功");
-		}catch(RuntimeException e){
-			e.printStackTrace();
-			xjlResponse.setSuccess(false);
-			xjlResponse.setShowMsg("目录名称修改失败");
-		}
+		log.debug("目录名称修改");
+		this.zzCatalogService.modifyCatalogName(zzCatalog);
+		xjlResponse.setSuccess(true);
+		xjlResponse.setShowMsg("目录名称修改成功");
 		return xjlResponse;
 	}
 	
@@ -141,13 +131,9 @@ public class CatalogController {
 		String catalogId=StringUtils.trim(request.getParameter("catalogId"));
 		ZzCatalog zzCatalog=new ZzCatalog();
 		List<ZzCatalogLicence>  list=null;
-		try{
-			log.debug("目录展开");
-			zzCatalog=this.zzCatalogService.queryById(catalogId);
-			list=this.zzCatalogLicenceService.queryByCatalogId(catalogId);
-		}catch(RuntimeException e){
-			e.printStackTrace();
-		}
+		log.debug("目录展开");
+		zzCatalog=this.zzCatalogService.queryById(catalogId);
+		list=this.zzCatalogLicenceService.queryByCatalogId(catalogId);
 		model.put("catalog", zzCatalog);
 		model.put("licenceOfCata", list);
 		returnList.add(model);
@@ -170,7 +156,6 @@ public class CatalogController {
 		//解析时间
 		licence.setIssuingDateStr(format.format(licence.getIssuingDate()));
 		licence.setExirationDateStr(format.format(licence.getExpirationDate()));
-		System.out.println(licence.getLicenceName());
 		model.put("licence",licence);
 		list.add(model);
 		return list;
