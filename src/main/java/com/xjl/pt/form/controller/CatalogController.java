@@ -5,21 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.xjl.pt.core.domain.DictItem;
 import com.xjl.pt.core.domain.Licence;
 import com.xjl.pt.core.domain.User;
@@ -31,8 +25,11 @@ import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.core.service.ZzCatalogLicenceService;
 import com.xjl.pt.core.service.ZzCatalogService;
 import com.xjl.pt.core.tools.DictItemTools;
-
-
+/**
+ * 证照目录控制类
+ * @author 陶杰
+ *
+ */
 @Controller
 @RequestMapping("/catalog")
 public class CatalogController {
@@ -50,6 +47,10 @@ public class CatalogController {
 	private static final Log log = LogFactory.getLog(CatalogController.class);
 	SimpleDateFormat format=new SimpleDateFormat(SystemConstant.FOMATDATE_DAY);
 	
+	/**
+	 * 证照、目录展示
+	 * @return taojie
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/showZZcatalog")
 	public List<Map<String,Object>>  showzzCatalog(){
@@ -71,6 +72,12 @@ public class CatalogController {
 		return allList;
 	}
 	
+	/**
+	 * 去重复方法
+	 * @param list1
+	 * @param list2
+	 * @return
+	 */
 	public List<Licence>  removeRep(List<Licence> list1,List<ZzCatalogLicence> list2){
 		if(null != list1 && list1.size() > 0 && (null != list2 && list2.size() > 0)){
 			for(int i= 0;i<list1.size();i++){
@@ -84,6 +91,12 @@ public class CatalogController {
 		return list1;
 	}
 	
+	/**
+	 * 创建目录
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/createCatalog")
 	public Map<String, String>  createCatalog(HttpServletRequest request,HttpServletResponse response){
@@ -103,7 +116,12 @@ public class CatalogController {
 		
 	}
 	
-	
+	/**
+	 * 修改目录名字
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/changeCatalogName")
 	public XJLResponse  changeCatalogName(HttpServletRequest request,HttpServletResponse response){
@@ -122,7 +140,12 @@ public class CatalogController {
 		return xjlResponse;
 	}
 	
-	
+	/**
+	 * 展示目录下证照
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/showcataloglicence")
 	public List<Map<String, Object>>  showcataloglicence(HttpServletRequest request,HttpServletResponse response){
@@ -140,6 +163,12 @@ public class CatalogController {
 		return returnList;
 	}
 	
+	/**
+	 * 展示证照信息，相当于预览效果
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping(value="/query")
 	public List<Map<String, Licence>> queryById(HttpServletRequest request,HttpServletResponse response){
