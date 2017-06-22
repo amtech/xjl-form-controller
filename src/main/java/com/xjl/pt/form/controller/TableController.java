@@ -43,6 +43,13 @@ public class TableController {
 		return BootstrapGridTable.getInstance(list);
 	}
 	@ResponseBody
+	@RequestMapping(value="/queryAll",method=RequestMethod.GET,consumes = "application/json")
+	public BootstrapGridTable queryAll(HttpServletRequest request){
+		List<Table> list = null;
+		list = this.tableService.queryAll();
+		return BootstrapGridTable.getInstance(list);
+	}
+	@ResponseBody
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse add(@RequestBody Table table){
 		User user = this.userService.queryById("9fcfdb3e-3bdb-4234-a0c4-f91d023c308e");
