@@ -267,21 +267,11 @@ public class CatalogController {
 		Licence licence=this.licenceService.queryByLicenceId(id);
 		//判断证照是否可以被删除，当1.证照来源是政府发放 2.证照状态是使用中 时不能被删除
 		String s=StringUtils.trim(licence.getLicenceSourceType());
-		if(s!="01" && StringUtils.trimToEmpty(licence.getLicenceStatus())!="08"){
-			User userDefault = this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
-			this.licenceService.delete(licence, userDefault);
-			xjlResponse.setSuccess(true);
-			xjlResponse.setShowMsg("该执照删除成功");
-			return xjlResponse;
-		}else if(licence.getLicenceSourceType()=="01"){
-			xjlResponse.setSuccess(false);
-			xjlResponse.setShowMsg("该证照来源是政府发放,不能被删除");
-			return xjlResponse;
-		}else{
-			xjlResponse.setSuccess(false);
-			xjlResponse.setShowMsg("该证照在被使用中,不能被删除");
-			return xjlResponse;
-		}
+		User userDefault = this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
+		this.licenceService.delete(licence, userDefault);
+		xjlResponse.setSuccess(true);
+		xjlResponse.setShowMsg("该执照删除成功");
+		return xjlResponse;
 	}
 	
 	/**
@@ -312,24 +302,14 @@ public class CatalogController {
 		XJLResponse xjlResponse = new XJLResponse();
 		String catalogId=request.getParameter("catalogId");
 		String licenceId=request.getParameter("id");
-		List<ZzCatalogLicence> zzCatalogLicencelist=this.zzCatalogLicenceService.queryByCatalogId(catalogId);
+		List<ZzCatalogLicence> zzCatalogLicencelist=this.zzCatalogLicenceService.queryByLicenceId(licenceId);
 		ZzCatalogLicence zzCatalogLicence=zzCatalogLicencelist.get(0);
 		Licence licence=this.licenceService.queryByLicenceId(licenceId);//此处id即licenceid
 		String s=StringUtils.trim(licence.getLicenceSourceType());
-		if(s!="01" && StringUtils.trimToEmpty(licence.getLicenceStatus())!="08"){
-			User userDefault = this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
-			this.zzCatalogLicenceService.delete(zzCatalogLicence, userDefault);
-			xjlResponse.setSuccess(true);
-			xjlResponse.setShowMsg("该证照已移除当前文件夹");
-			return xjlResponse;
-		}else if(licence.getLicenceSourceType()=="01"){
-			xjlResponse.setSuccess(false);
-			xjlResponse.setShowMsg("该证照来源是政府发放,不能被删除");
-			return xjlResponse;
-		}else{
-			xjlResponse.setSuccess(false);
-			xjlResponse.setShowMsg("该证照在被使用中,不能被删除");
-			return xjlResponse;
-		}
+		User userDefault = this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
+		this.zzCatalogLicenceService.delete(zzCatalogLicence, userDefault);
+		xjlResponse.setSuccess(true);
+		xjlResponse.setShowMsg("该证照已移除当前文件夹");
+		return xjlResponse;
 	}
 }
