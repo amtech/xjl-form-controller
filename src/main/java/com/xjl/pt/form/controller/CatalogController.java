@@ -265,8 +265,6 @@ public class CatalogController {
 		XJLResponse xjlResponse = new XJLResponse();
 		String id=StringUtils.trim(request.getParameter("id"));
 		Licence licence=this.licenceService.queryByLicenceId(id);
-		//判断证照是否可以被删除，当1.证照来源是政府发放 2.证照状态是使用中 时不能被删除
-		String s=StringUtils.trim(licence.getLicenceSourceType());
 		User userDefault = this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
 		this.licenceService.delete(licence, userDefault);
 		xjlResponse.setSuccess(true);
@@ -300,7 +298,7 @@ public class CatalogController {
 	@RequestMapping(value="/removeOutOfCata")
 	public XJLResponse removeOutOfCata(HttpServletRequest request,HttpServletResponse response){
 		XJLResponse xjlResponse = new XJLResponse();
-		String catalogId=request.getParameter("catalogId");
+	//	String catalogId=request.getParameter("catalogId");
 		String licenceId=request.getParameter("id");
 		List<ZzCatalogLicence> zzCatalogLicencelist=this.zzCatalogLicenceService.queryByLicenceId(licenceId);
 		ZzCatalogLicence zzCatalogLicence=zzCatalogLicencelist.get(0);
