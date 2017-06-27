@@ -70,7 +70,7 @@ public class StrategyController {
 	
 	
 	/**
-	 * 用户新增攻略 自定义方法  没法与前台列表配合使用
+	 * 用户新增攻略 自定义方法  没法与前台列表直接配合使用
 	 */
 	@ResponseBody
 	@RequestMapping(value="/addStrategy")

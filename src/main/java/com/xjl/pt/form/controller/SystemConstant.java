@@ -90,7 +90,7 @@ public class SystemConstant {
 	/**
 	 * 年月日
 	 */
-	public static final String FOMATDATE_DAY="yyyy-mm-dd";
+	public static final String FOMATDATE_DAY="yyyy-MM-dd";
 	/**
 	 * Session中的用户key（不可修改）
 	 */
