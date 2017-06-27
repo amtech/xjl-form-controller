@@ -110,7 +110,13 @@ public class StrategyController {
 	public XJLResponse modify(HttpServletRequest request, @RequestBody BsStrategy bsStrategy){
 	//	User user = this.sessionTools.getUser(request);
 		User user=this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
-		this.bsStrateService.modify(bsStrategy, user);
+		if("01".equals(bsStrategy.getStrategyState())){
+			this.bsStrateService.modify(bsStrategy, user);
+		}else if("00".equals(bsStrategy.getStrategyState())){
+			bsStrategy.setStrategyId(UUID.randomUUID().toString());
+			bsStrategy.setStrategyState("01");
+			this.bsStrateService.modify(bsStrategy, user);
+		}
 		return XJLResponse.successInstance();
 	}
 	/**
