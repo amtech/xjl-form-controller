@@ -84,13 +84,14 @@ public class LogInterceptor implements HandlerInterceptor{
 				userLog.setState(XJLDomain.StateType.A.name());
 				userLog.setCreateDate(new Date());
 				userLogList.add(userLog);
-				if (userLogList.size()>5) {
-					List<UserLog> list = removeDuplicate(userLogList);
-					 for (UserLog userLog2 : list) {
-						 userLogService.add(userLog2,userDefault);
-					}
-					 userLogList.clear();
-				}
+				//因为数据库磁盘不足，一直报错，暂时注释日志记录
+//				if (userLogList.size()>5) {
+//					List<UserLog> list = removeDuplicate(userLogList);
+//					 for (UserLog userLog2 : list) {
+//						 userLogService.add(userLog2,userDefault);
+//					}
+//					 userLogList.clear();
+//				}
             }
         }.start();
 	}
