@@ -33,7 +33,11 @@ import com.xjl.pt.core.service.UserInfoService;
 import com.xjl.pt.core.service.UserService;
 import com.xjl.pt.core.tools.DictItemTools;
 
-
+/**
+ * 历史办件控制类
+ * @author 陶杰
+ *
+ */
 @Controller
 @RequestMapping(value="/historypiece")
 public class HistoryPieceController {
