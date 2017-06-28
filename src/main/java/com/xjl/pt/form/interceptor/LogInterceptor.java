@@ -79,7 +79,7 @@ public class LogInterceptor implements HandlerInterceptor{
 				userLog.setIp(addIp);
 				userLog.setCity(city);
 				userLog.setUrl(url);
-				userLog.setUserId(userId);
+				userLog.setUserId(userId); 
 				userLog.setUserName(userName);
 				userLog.setState(XJLDomain.StateType.A.name());
 				userLog.setCreateDate(new Date());
