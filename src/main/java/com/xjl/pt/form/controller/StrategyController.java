@@ -94,29 +94,16 @@ public class StrategyController {
 	 */
 	@ResponseBody
 	@RequestMapping(value="/addStrategy")
-	public XJLResponse addStrategy(HttpServletRequest request,HttpServletResponse response){
+	public XJLResponse addStrategy(@RequestBody Map<String,Object> model,HttpServletRequest request){
 		User userDefault = this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
-		String title=StringUtils.trim(request.getParameter("title"));
-		String content=StringUtils.trim(request.getParameter("content"));
+		String title=String.valueOf(model.get("strategyTitle"));
+		String content=String.valueOf(model.get("strategyContent"));
 		BsStrategy strategy=new BsStrategy();
 		strategy.setStrategyId(UUID.randomUUID().toString());
 		strategy.setStrategyTitle(title);
 		strategy.setStrategyContent(content);
 		strategy.setStrategyState("01");
 		this.bsStrategyService.add(strategy, userDefault);
-		return XJLResponse.successInstance();
-	}
-	/**
-	 * 用户新增攻略
-	 */
-	@ResponseBody
-	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
-	public XJLResponse add(HttpServletRequest request, @RequestBody BsStrategy bsStrategy){
-	//	User user = this.sessionTools.getUser(request);
-		User user=this.userService.queryById("73f94e44-bb52-4041-8a18-f0b193a970ea");
-		bsStrategy.setStrategyId(UUID.randomUUID().toString());
-		bsStrategy.setStrategyState("01");
-		this.bsStrategyService.add(bsStrategy, user);
 		return XJLResponse.successInstance();
 	}
 	

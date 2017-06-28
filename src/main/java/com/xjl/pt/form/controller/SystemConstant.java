@@ -88,6 +88,10 @@ public class SystemConstant {
 	 */
 	public static final String FOMATDATE_MINUTE="yyyy-MM-dd-HH-mm";
 	/**
+	 * 年月日时分秒
+	 */
+	public static final String FOMATEDATE_SECOND="yyyy-MM-dd HH:mm:ss";
+	/**
 	 * 年月日
 	 */
 	public static final String FOMATDATE_DAY="yyyy-MM-dd";
