@@ -209,6 +209,8 @@ public class LicenseController {
 		String endDate = String.valueOf(models.get("endDate"));
 		String ftpURL = String.valueOf(models.get("ftpURL"));
 		String fileName = String.valueOf(models.get("fileName"));
+		String licenceCategory = String.valueOf(models.get("licenceCategory"));
+		String licenceFileType = String.valueOf(models.get("licenceFileType")); 
 		log.debug("完成参数组装");
 		SimpleDateFormat format = new SimpleDateFormat(SystemConstant.FOMATDATE_DAY);
 		Licence licence = new Licence();
@@ -218,6 +220,8 @@ public class LicenseController {
 		licence.setIssuingDate(format.parse(startDate));
 		licence.setExpirationDate(format.parse(endDate));
 		licence.setLicenceStatus("07");
+		licence.setLicenceCategory(licenceCategory);
+		licence.setLicenceFileType(licenceFileType);
 		this.licenceService._modify(licence);
 		return XJLResponse.successInstance();
 	}

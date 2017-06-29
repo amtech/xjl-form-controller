@@ -114,7 +114,7 @@ public class CatalogController {
 			idlist2.add(list2.get(i).getLicenceId());
 		}
 		int k=0;
-		if(null != list1 && list1.size() > 0 && (null != list2 && list2.size() > 0)){
+		if((null != list1 && list1.size() > 0 && list1.isEmpty()!=true) && (null != list2 && list2.size() > 0 && list2.isEmpty()!=true)){
 			for(int i= 0;i<idlist1.size();i++){
 				for(int j = 0;j<idlist2.size();j++){
 					if(idlist2.get(j).equals(idlist1.get(i))){
