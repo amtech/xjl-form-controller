@@ -4,8 +4,12 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.xjl.pt.form.controller.SessionTools;
 import com.xjl.pt.form.controller.XJLResponse;
 import com.xjl.pt.form.controller.BootstrapGridTable;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.xjl.cdc.cloud.domain.CdcTerminal;
 import com.xjl.pt.core.domain.DictItem;
 import com.xjl.pt.core.domain.User;
@@ -125,16 +131,17 @@ public class CdcTerminalController {
 	@ResponseBody
 	@RequestMapping(value="/setURL/{guid}",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse setURL(HttpServletRequest request, @PathVariable String guid){
+		JSONObject json = null;
+		try {
+			String content = IOUtils.toString(request.getInputStream());
+			json = (JSONObject)JSONObject.parse(content);
+		} catch (Exception e){
+			throw new RuntimeException(e);
+		}
 		User user = this.sessionTools.getUser(request);
 		CdcTerminal cdcTerminal = this.cdcTerminalService.queryByGUID(guid);
 		cdcTerminal.setTerminalState("2");
-		Enumeration<String> names = request.getParameterNames();
-		while (names.hasMoreElements()){
-			String name = names.nextElement();
-			System.out.println(name + ":" + request.getParameter(name));
-		}
-		System.out.println("url:"+request.getParameter("url"));
-		cdcTerminal.setTerminalUrl("http://baidu.com");
+		cdcTerminal.setTerminalUrl(json.getString("url"));
 		this.cdcTerminalService.modify(cdcTerminal, user);
 		return XJLResponse.successInstance();
 	}
