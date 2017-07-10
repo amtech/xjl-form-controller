@@ -1,5 +1,6 @@
 package com.xjl.cdc.cloud.controller;
 
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,6 +64,13 @@ public class CdcTerminalController {
 	@RequestMapping(value="/query/guid/{guid}",method=RequestMethod.GET,consumes = "application/json")
 	public CdcTerminal queryByGUID(HttpServletRequest request, @PathVariable String guid){
 		CdcTerminal cdcTerminal = this.cdcTerminalService.queryByGUID(guid);
+		if (cdcTerminal == null){
+			//没有查询到，创建一个
+			cdcTerminal = new CdcTerminal();
+			cdcTerminal.setTerminalGuid(guid);
+			User user = this.sessionTools.getUser(request);
+			this.cdcTerminalService.add(cdcTerminal, user);
+		}
 		if (cdcTerminal != null){
 			//处理字典
 			List<DictItem> terminalTypeDictItems = this.dictItemService.queryByDictId("5997cff9-5353-4974-8992-27c5b40f8ea1", 1, 1000);
@@ -105,12 +113,30 @@ public class CdcTerminalController {
 			cdcTerminal = new CdcTerminal();
 			cdcTerminal.setTerminalGuid(guid);
 			cdcTerminal.setTerminalType(code);
+			cdcTerminal.setTerminalState("1");
 			this.cdcTerminalService.add(cdcTerminal, user);
 		} else {
 			cdcTerminal.setTerminalType(code);
+			cdcTerminal.setTerminalState("1");
 			this.cdcTerminalService.modify(cdcTerminal, user);
 		}
 		return cdcTerminal;
+	}
+	@ResponseBody
+	@RequestMapping(value="/setURL/{guid}",method=RequestMethod.POST,consumes = "application/json")
+	public XJLResponse setURL(HttpServletRequest request, @PathVariable String guid){
+		User user = this.sessionTools.getUser(request);
+		CdcTerminal cdcTerminal = this.cdcTerminalService.queryByGUID(guid);
+		cdcTerminal.setTerminalState("2");
+		Enumeration<String> names = request.getParameterNames();
+		while (names.hasMoreElements()){
+			String name = names.nextElement();
+			System.out.println(name + ":" + request.getParameter(name));
+		}
+		System.out.println("url:"+request.getParameter("url"));
+		cdcTerminal.setTerminalUrl("http://baidu.com");
+		this.cdcTerminalService.modify(cdcTerminal, user);
+		return XJLResponse.successInstance();
 	}
 }
 
