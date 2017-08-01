@@ -14,6 +14,7 @@ import com.xjl.pt.news.domain.NewsGovernmentAffairsOpennessCategory;
 import com.xjl.pt.sx.domain.SxDirItem;
 import com.xjl.pt.sx.domain.SxImplItem;
 import com.xjl.pt.web.controller.BaseControllerTest;
+import com.xjl.rcu.monitor.domain.RcuErrorLog;
 @ContextConfiguration(locations = { "classpath*:/ApplicationContext-*.xml"})  
 @RunWith(SpringJUnit4ClassRunner.class)  
 public class ControllerCoderToolsTest {
@@ -43,5 +44,9 @@ public class ControllerCoderToolsTest {
 	@Test
 	public void generateCDCTerminal(){
 		this.tools.generateController(CdcTerminal.class, "com.xjl.cdc.cloud");
+	}
+	@Test
+	public void generateRCUErrorLog(){
+		this.tools.generateController(RcuErrorLog.class, "com.xjl.rcu.monitor");
 	}
 }

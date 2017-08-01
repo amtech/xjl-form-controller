@@ -12,6 +12,7 @@ import com.xjl.pt.news.domain.NewsGovernmentAffairsOpenness;
 import com.xjl.pt.news.domain.NewsGovernmentAffairsOpennessCategory;
 import com.xjl.pt.sx.domain.SxDirItem;
 import com.xjl.pt.sx.domain.SxImplItem;
+import com.xjl.rcu.monitor.domain.RcuErrorLog;
 @ContextConfiguration(locations = { "classpath*:/ApplicationContext-*.xml"})  
 @RunWith(SpringJUnit4ClassRunner.class)  
 public class PageCoderToolsTest {
@@ -41,5 +42,9 @@ public class PageCoderToolsTest {
 	@Test
 	public void generateCDCTerminal(){
 		this.tools.generatePage(CdcTerminal.class, "/home/lilisheng/workspace/detection-center-web/src/main/webapp/cloud");
+	}
+	@Test
+	public void generateRCUErrorLog(){
+		this.tools.generatePage(RcuErrorLog.class, "/home/lilisheng/git/xjl-form-web/src/main/webapp/rcu/error");
 	}
 }
