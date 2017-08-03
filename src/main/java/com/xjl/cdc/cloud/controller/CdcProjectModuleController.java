@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xjl.cdc.cloud.domain.CdcProjectModule;
 import com.xjl.cdc.cloud.service.CdcProjectModuleService;
+import com.xjl.cdc.cloud.service.CdcTerminalService;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.form.controller.BootstrapGridTable;
 import com.xjl.pt.form.controller.SessionTools;
@@ -27,6 +28,8 @@ public class CdcProjectModuleController {
 	private SessionTools sessionTools;
 	@Autowired
 	private CdcProjectModuleService cdcProjectModuleService;
+	@Autowired
+	private CdcTerminalService cdcTerminalService;
 	@ResponseBody
 	@RequestMapping(value="/query/{page}/{rows}",method=RequestMethod.GET,consumes = "application/json")
 	public BootstrapGridTable query(HttpServletRequest request, @PathVariable Integer page,@PathVariable Integer rows){
@@ -62,7 +65,13 @@ public class CdcProjectModuleController {
 	@RequestMapping(value="/modify",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse modify(HttpServletRequest request, @RequestBody CdcProjectModule cdcProjectModule){
 		User user = this.sessionTools.getUser(request);
+		CdcProjectModule old = this.cdcProjectModuleService.queryById(cdcProjectModule.getModuleId());
+		
 		this.cdcProjectModuleService.modify(cdcProjectModule, user);
+		//判断是不是更新了url，如果是更新了url则自动更新所有已经使用该module的url地址
+		if (!StringUtils.equals(cdcProjectModule.getModuleUrl(), old.getModuleUrl())){
+			this.cdcTerminalService.updateUrlByModuleId(cdcProjectModule.getModuleUrl(), cdcProjectModule.getModuleId());
+		}
 		return XJLResponse.successInstance();
 	}
 
