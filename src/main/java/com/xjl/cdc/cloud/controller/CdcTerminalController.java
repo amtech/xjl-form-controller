@@ -141,6 +141,7 @@ public class CdcTerminalController {
 		User user = this.sessionTools.getUser(request);
 		CdcTerminal cdcTerminal = this.cdcTerminalService.queryByGUID(guid);
 		cdcTerminal.setTerminalState("2");
+		cdcTerminal.setModuleId(json.getString("moduleId"));
 		cdcTerminal.setTerminalUrl(json.getString("url"));
 		this.cdcTerminalService.modify(cdcTerminal, user);
 		return XJLResponse.successInstance();
