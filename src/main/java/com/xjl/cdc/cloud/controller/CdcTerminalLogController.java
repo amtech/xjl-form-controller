@@ -1,5 +1,6 @@
 package com.xjl.cdc.cloud.controller;
 
+import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.xjl.cdc.cloud.domain.CdcTerminal;
 import com.xjl.cdc.cloud.domain.CdcTerminalLog;
 import com.xjl.cdc.cloud.service.CdcTerminalLogService;
+import com.xjl.cdc.cloud.service.CdcTerminalService;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.form.controller.BootstrapGridTable;
 import com.xjl.pt.form.controller.SessionTools;
@@ -30,6 +33,8 @@ import com.xjl.pt.form.controller.XJLResponse;
 public class CdcTerminalLogController {
 	@Autowired
 	private SessionTools sessionTools;
+	@Autowired
+	private CdcTerminalService cdcTerminalService;
 	@Autowired
 	private CdcTerminalLogService cdcTerminalLogService;
 	@ResponseBody
@@ -62,6 +67,21 @@ public class CdcTerminalLogController {
 	@RequestMapping(value="/add",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse add(HttpServletRequest request, @RequestBody CdcTerminalLog cdcTerminalLog){
 		User user = this.sessionTools.getUser(request);
+		// 根据终端设备唯一编码GUID查找系统记录的TerminalId
+		CdcTerminal cdcTerminal = this.cdcTerminalService.queryByGUID(cdcTerminalLog.getTerminalGuid());
+		if(cdcTerminal!=null) {
+			String terminalId = cdcTerminal.getTerminalId();
+			cdcTerminalLog.setTerminalId(terminalId);
+		}
+		cdcTerminalLog.setOperateDate(Calendar.getInstance().getTime());
+		String operateType = cdcTerminalLog.getOperateType();
+		if("1".equals(operateType)) {
+			cdcTerminalLog.setOperateDesc("出厂检测");
+		}else if("2".equals(operateType)) {
+			cdcTerminalLog.setOperateDesc("主页设置");
+		}else {
+			cdcTerminalLog.setOperateDesc("正常运行");
+		}
 		this.cdcTerminalLogService.add(cdcTerminalLog, user);
 		return XJLResponse.successInstance();
 	}
