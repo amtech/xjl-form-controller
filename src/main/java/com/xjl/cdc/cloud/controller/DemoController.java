@@ -59,8 +59,8 @@ public class DemoController {
 	@RequestMapping(value = "/image/{name}/{json}", method = RequestMethod.GET)  
 	public ResponseEntity<byte[]> image(HttpServletRequest request,@PathVariable String name,@PathVariable String json) throws IOException {  
 		ServletContext servletContext = request.getSession().getServletContext();
-		name = new String(name.getBytes("iso-8859-1"),"UTF-8");
-		json = new String(json.getBytes("iso-8859-1"),"UTF-8");
+		name = URLDecoder.decode(name, "UTF-8");
+		json = URLDecoder.decode(json, "UTF-8");
 		log.debug("json:" + json);
 		JSONObject paramsObj = (JSONObject)JSONObject.parse(json);
 		String 身份证号码 = paramsObj.getString("身份证号码");
