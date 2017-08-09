@@ -1,6 +1,7 @@
 package com.xjl.cdc.cloud.controller;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +62,23 @@ public class CdcTerminalLogController {
 	@RequestMapping(value="/query/tmid/{tmid}",method=RequestMethod.GET,consumes = "application/json")
 	public BootstrapGridTable queryByTMID(HttpServletRequest request, @PathVariable String tmid){
 		List<CdcTerminalLog> list = this.cdcTerminalLogService.queryByTMId(tmid);
+		return BootstrapGridTable.getInstance(list);
+	}
+	@ResponseBody
+	@RequestMapping(value="/queryByParams",method=RequestMethod.POST,consumes = "application/json")
+	public BootstrapGridTable queryByOperTime(HttpServletRequest request, @RequestBody CdcTerminalLog cdcTerminalLog){
+		String terminalGUID = cdcTerminalLog.getTerminalGuid();
+		String beginTime = cdcTerminalLog.getBeginTime();
+		String endTime = cdcTerminalLog.getEndTime();
+		List<CdcTerminalLog> list = this.cdcTerminalLogService.queryByParams(terminalGUID, beginTime, endTime);
+		return BootstrapGridTable.getInstance(list);
+	}
+	@ResponseBody
+	@RequestMapping(value="/queryByParamsTj",method=RequestMethod.POST,consumes = "application/json")
+	public BootstrapGridTable queryByOperTimeTj(HttpServletRequest request, @RequestBody CdcTerminalLog cdcTerminalLog){
+		String beginTime = cdcTerminalLog.getBeginTime();
+		String endTime = cdcTerminalLog.getEndTime();
+		List<CdcTerminalLog> list = this.cdcTerminalLogService.queryByParamsTj(beginTime, endTime);
 		return BootstrapGridTable.getInstance(list);
 	}
 	@ResponseBody
