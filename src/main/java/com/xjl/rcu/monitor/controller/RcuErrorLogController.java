@@ -3,23 +3,25 @@ package com.xjl.rcu.monitor.controller;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.xjl.pt.form.controller.SessionTools;
-import com.xjl.pt.form.controller.XJLResponse;
-import com.xjl.pt.form.controller.BootstrapGridTable;
-import com.xjl.rcu.monitor.domain.RcuErrorLog;
+
 import com.xjl.pt.core.domain.DictItem;
 import com.xjl.pt.core.domain.User;
 import com.xjl.pt.core.service.DictItemService;
 import com.xjl.pt.core.tools.DictItemTools;
+import com.xjl.pt.form.controller.BootstrapGridTable;
+import com.xjl.pt.form.controller.SessionTools;
+import com.xjl.pt.form.controller.XJLResponse;
+import com.xjl.rcu.monitor.domain.RcuErrorLog;
 import com.xjl.rcu.monitor.service.RcuErrorLogService;
 /**
  * rcu错误日志表控制器类
@@ -87,6 +89,18 @@ public class RcuErrorLogController {
 		}
 		return XJLResponse.successInstance();
 	}
-
+	
+	@ResponseBody
+	@RequestMapping(value="/queryByErrorTime",method=RequestMethod.GET,consumes = "application/json")
+	public BootstrapGridTable queryByErrorTime(HttpServletRequest request, @RequestParam(value="beginTime", required=false) String beginTime,@RequestParam(value="endTime", required=false) String endTime){
+		List<RcuErrorLog> list = this.rcuErrorLogService.queryByErrorTime(beginTime, endTime);
+		return BootstrapGridTable.getInstance(list);
+	}
+	@ResponseBody
+	@RequestMapping(value="/queryByErrorTimeTj",method=RequestMethod.GET,consumes = "application/json")
+	public BootstrapGridTable queryByErrorTimeTj(HttpServletRequest request, @RequestParam(value="beginTime", required=false) String beginTime,@RequestParam(value="endTime", required=false) String endTime){
+		List<RcuErrorLog> list = this.rcuErrorLogService.queryByErrorTimeTj(beginTime, endTime);
+		return BootstrapGridTable.getInstance(list);
+	}
 }
 
