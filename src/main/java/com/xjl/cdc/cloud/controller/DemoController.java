@@ -1,5 +1,6 @@
 package com.xjl.cdc.cloud.controller;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -69,6 +70,8 @@ public class DemoController {
 		File imageFile = new File(path, "pic.png");
 		File pointFile = new File(path, "point.json");
 		JSONObject pointObj = (JSONObject)JSONObject.parse(FileUtils.readFileToString(pointFile, "UTF-8"));
+		JSONObject fontObj = pointObj.getJSONObject("font");
+		JSONObject dataObj = pointObj.getJSONObject("data");
 		 Image src = ImageIO.read(imageFile);
          int width = src.getWidth(null);
          int height = src.getHeight(null);
@@ -76,10 +79,16 @@ public class DemoController {
                  BufferedImage.TYPE_INT_RGB);
          Graphics2D g = image.createGraphics();
 
-
+//         Color.BLACK
          g.setFont(new Font("宋体", Font.PLAIN, 12));
+         if (fontObj != null){
+        	 if (fontObj.containsKey("color")){
+        		 g.setColor(Color.BLACK);
+        	 }
+         }
+         
          g.drawImage(src, 0, 0, width, height, null);
-         Set<Entry<String,Object>> names = pointObj.entrySet();
+         Set<Entry<String,Object>> names = dataObj.entrySet();
          int fontSize = 5;
          
          for (Entry entry : names) {
