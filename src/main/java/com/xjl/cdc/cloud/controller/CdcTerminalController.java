@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ import com.xjl.cdc.cloud.service.CdcTerminalService;
 @Controller
 @RequestMapping("/cdcTerminal")
 public class CdcTerminalController {
+	private static final Log log = LogFactory.getLog(CdcTerminalController.class);
 	@Autowired
 	private SessionTools sessionTools;
 	@Autowired
@@ -131,15 +134,22 @@ public class CdcTerminalController {
 	@ResponseBody
 	@RequestMapping(value="/setURL/{guid}",method=RequestMethod.POST,consumes = "application/json")
 	public XJLResponse setURL(HttpServletRequest request, @PathVariable String guid){
+		log.debug("设置主页，guid:" + guid);
 		JSONObject json = null;
 		try {
 			String content = IOUtils.toString(request.getInputStream());
+			log.debug("content:" + content);
 			json = (JSONObject)JSONObject.parse(content);
 		} catch (Exception e){
+			log.error(e);
 			throw new RuntimeException(e);
 		}
+		log.debug("moduleId:"+json.getString("moduleId"));
+		log.debug("url:" + json.getString("url"));
 		User user = this.sessionTools.getUser(request);
 		CdcTerminal cdcTerminal = this.cdcTerminalService.queryByGUID(guid);
+		log.debug("从数据库总查询到对象:" + cdcTerminal);
+		log.debug("从数据库总查询到对象 terminalId:" + cdcTerminal.getTerminalId());
 		cdcTerminal.setTerminalState("2");
 		cdcTerminal.setModuleId(json.getString("moduleId"));
 		cdcTerminal.setTerminalUrl(json.getString("url"));
